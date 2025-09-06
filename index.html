@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InCanva - AI设计助手</title>
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #e5e5e5;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Canvas区域 */
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            background: #e5e5e5;
+            position: relative;
+        }
+
+        /* Excel表格容器 */
+        .excel-container {
+            position: absolute;
+            left: 40px;
+            top: 80px;
+            width: 32%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-height: 70vh;
+            overflow: hidden; /* 隐藏滚动条 */
+            /* 隐藏滚动条的跨浏览器支持 */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            z-index: 10; /* Excel容器层级最低 */
+        }
+
+        /* 隐藏Excel容器滚动条 */
+        .excel-container::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .excel-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .excel-table th {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .excel-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+        }
+
+        .excel-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .search-query {
+            font-weight: 500;
+        }
+
+        .search-frequency {
+            text-align: right;
+            font-weight: 600;
+            color: #0066cc;
+        }
+
+        /* Excel表格容器 */
+        .excel-container {
+            position: absolute;
+            left: 40px;
+            top: 440px;
+            width: 32%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+            cursor: move;
+            user-select: none;
+            z-index: 10; /* Excel容器层级最低 */
+        }
+
+        .excel-container:hover {
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Word文档容器 */
+        .word-container {
+            position: absolute;
+            left: 34%;
+            top: 80px;
+            width: 32%;
+            height: 60vh;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: none;
+            max-height: 60vh;
+            overflow: hidden;
+            font-family: 'Calibri', 'Times New Roman', serif;
+            padding: 20px;
+            cursor: move;
+            user-select: none;
+            z-index: 20; /* Word容器层级中等 */
+        }
+
+        .word-container:hover {
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 拖拽时的样式 */
+        .dragging {
+            z-index: 1000; /* 拖拽时最高层级 */
+            transform: rotate(2deg);
+            opacity: 0.9;
+        }
+
+        /* 选中状态的样式 */
+        .selected {
+            border: 3px solid #007bff;
+            box-shadow: 0 6px 30px rgba(0, 123, 255, 0.3);
+        }
+
+        /* 调整大小功能样式 */
+        .resizable {
+            resize: both;
+            overflow: auto;
+            min-width: 200px;
+            min-height: 150px;
+        }
+
+        /* 调整大小手柄样式 */
+        .resize-handle {
+            position: absolute;
+            background: transparent; /* 完全透明背景 */
+            opacity: 0; /* 完全透明 */
+            transition: none; /* 移除过渡效果 */
+        }
+
+        .resize-handle:hover {
+            opacity: 0; /* 悬停时也保持透明 */
+            background: transparent; /* 确保背景透明 */
+        }
+
+        .selected .resize-handle {
+            opacity: 0; /* 选中时也保持透明 */
+            background: transparent; /* 确保背景透明 */
+        }
+
+        .selected .resize-handle:hover {
+            opacity: 0; /* 选中且悬停时也保持透明 */
+            background: transparent; /* 确保背景透明 */
+        }
+
+        /* 调整大小时隐藏手柄 */
+        .resizing .resize-handle {
+            opacity: 0 !important;
+            background: transparent !important;
+        }
+
+        /* 调整大小时隐藏选中边框 */
+        .resizing.selected {
+            border: none !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* 右下角调整大小手柄 */
+        .resize-handle-se {
+            width: 15px;
+            height: 15px;
+            bottom: 0;
+            right: 0;
+            cursor: se-resize;
+        }
+
+        /* 右边调整大小手柄 */
+        .resize-handle-e {
+            width: 5px;
+            height: 100%;
+            top: 0;
+            right: 0;
+            cursor: e-resize;
+        }
+
+        /* 底部调整大小手柄 */
+        .resize-handle-s {
+            width: 100%;
+            height: 5px;
+            bottom: 0;
+            left: 0;
+            cursor: s-resize;
+        }
+
+        /* 文档复选框样式 */
+        .document-checkbox {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        /* Excel复选框层级 */
+        .excel-container .document-checkbox {
+            z-index: 15; /* Excel复选框 */
+        }
+
+        /* Word复选框层级 */
+        .word-container .document-checkbox {
+            z-index: 25; /* Word复选框 */
+        }
+
+        /* Claude复选框层级 */
+        .claude-output-container .document-checkbox {
+            z-index: 35; /* Claude复选框，最高层级 */
+        }
+
+        .checkbox-input {
+            display: none;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .checkbox-label:hover {
+            border-color: #007bff;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+        }
+
+        .checkbox-label i {
+            font-size: 12px;
+            color: transparent;
+            transition: color 0.2s ease;
+        }
+
+        .checkbox-input:checked + .checkbox-label {
+            background: #007bff;
+            border-color: #007bff;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .checkbox-input:checked + .checkbox-label i {
+            color: white;
+        }
+
+        /* Excel工具栏样式 */
+        .excel-toolbar {
+            background: #f8f9fa; /* 与Word相同的灰色背景 */
+            border-bottom: 1px solid #e5e7eb; /* 与Word相同的边框色 */
+            padding: 8px 50px 8px 15px; /* 为复选框留空间 */
+            font-size: 11px;
+            color: #6b7280; /* 与Word相同的文字颜色 */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: -20px -20px 0 -20px;
+        }
+
+        .excel-filename {
+            font-weight: 500;
+            color: #374151; /* 与Word相同的文件名颜色 */
+        }
+
+        .excel-filename i {
+            color: #217346; /* Excel绿色图标 */
+            margin-right: 6px;
+        }
+
+        .excel-content {
+            padding: 20px;
+            height: calc(100% - 70px); /* 动态高度，减去工具栏高度 */
+            overflow-y: auto;
+            background: white;
+            margin: 0;
+            box-shadow: none;
+            /* 隐藏滚动条但保持滚动功能 */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        /* 隐藏Excel内容滚动条但保持滚动功能 */
+        .excel-content::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .word-toolbar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 8px 50px 8px 15px; /* 增加右侧padding为复选框留空间 */
+            font-size: 11px;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: -20px -20px 0 -20px;
+        }
+
+        .word-filename {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .word-filename i {
+            color: #2b579a; /* Word蓝色图标 */
+            margin-right: 6px;
+        }
+
+        .word-document {
+            padding: 20px;
+            height: calc(100% - 50px); /* 动态高度，减去工具栏高度 */
+            overflow-y: auto;
+            background: white;
+            margin: 0;
+            box-shadow: none;
+        }
+
+        /* 隐藏Word文档滚动条但保持滚动功能 */
+        .word-document::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        .word-document {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        .word-header {
+            border-bottom: none;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .word-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-family: 'Calibri', sans-serif;
+        }
+
+        .word-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        .word-content {
+            line-height: 1.8;
+            color: #1f2937;
+            font-size: 14px;
+            font-family: 'Calibri', sans-serif;
+        }
+
+        .word-section {
+            margin-bottom: 25px;
+        }
+
+        .word-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+            border-left: none;
+            padding-left: 0;
+            font-family: 'Calibri', sans-serif;
+        }
+
+        .word-section p {
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-align: justify;
+            text-indent: 0;
+            line-height: 1.8;
+        }
+
+        .word-list {
+            font-size: 14px;
+            margin-left: 20px;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .word-list li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+
+        /* Word文档页边距和页面样式 */
+        .word-document::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        /* 动画效果 */
+
+        .canvas-area {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            position: relative;
+        }
+
+        .canvas-placeholder {
+            display: none;
+        }
+
+        .canvas-icon {
+            width: 80px;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        /* Claude输出容器样式 */
+        .claude-output-container {
+            position: absolute;
+            left: 50%;
+            top: 80px;
+            width: 48%;
+            height: 60vh;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: none;
+            max-height: 60vh;
+            overflow: hidden;
+            font-family: 'Calibri', 'Times New Roman', serif;
+            padding: 10px;
+            cursor: move;
+            user-select: none;
+            display: none; /* 默认隐藏 */
+            z-index: 30; /* Claude容器层级最高 */
+        }
+
+        .claude-output-container:hover {
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .claude-output-toolbar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 8px 50px 8px 15px;
+            font-size: 11px;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: -10px -10px 0 -10px;
+        }
+
+        .claude-output-filename {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .claude-output-filename i {
+            color: #667eea; /* Claude紫色图标 */
+            margin-right: 6px;
+        }
+
+        .claude-output-content {
+            padding: 5px;
+            height: calc(100% - 50px);
+            overflow-y: auto;
+            background: white;
+            margin: 0;
+            box-shadow: none;
+            /* 隐藏滚动条但保持滚动功能 */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        .claude-output-content::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        /* 悬浮对话框 */
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .chat-header {
+            background: white;
+            color: #333;
+            padding: 0;
+            display: none;
+        }
+
+        .chat-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chat-status {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .chat-messages {
+            height: 200px;
+            padding: 16px;
+            overflow-y: auto;
+            background: white;
+            transition: height 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* 当没有消息时隐藏对话历史区域 */
+        .chat-messages.empty {
+            height: 0;
+            padding: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.ai .message-avatar {
+            background: #e8ecf3;
+            color: #667eea;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 400;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 输入框区域 */
+        .chat-input-container {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 25px;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .chat-input-wrapper:focus-within {
+            border-color: #007bff;
+            box-shadow: 0 2px 12px rgba(0, 123, 255, 0.15);
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 0;
+            font-size: 15px;
+            outline: none;
+            resize: none;
+            min-height: 22px;
+            max-height: 100px;
+            line-height: 1.4;
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 400;
+        }
+
+        .chat-input::placeholder {
+            color: #999;
+        }
+
+        .send-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 滚动条样式 */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #bbb;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .chat-container {
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                width: auto;
+                transform: none;
+            }
+        }
+
+        /* 消息动画效果 */
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Canvas区域 -->
+        <div class="canvas-container">
+            <div class="canvas-area">
+                <div class="canvas-placeholder">
+                    <div class="canvas-icon">🎨</div>
+                    <p>您的创作画布</p>
+                    <p style="font-size: 14px; margin-top: 8px; opacity: 0.7;">开始与AI对话来创建设计</p>
+                </div>
+            </div>
+
+            <!-- Excel表格 -->
+            <div class="excel-container">
+                <div class="document-checkbox" data-document="excel">
+                    <input type="checkbox" id="excel-checkbox" class="checkbox-input">
+                    <label for="excel-checkbox" class="checkbox-label">
+                        <i class="fas fa-check"></i>
+                    </label>
+                </div>
+                <!-- 调整大小手柄 -->
+                <div class="resize-handle resize-handle-se"></div>
+                <div class="resize-handle resize-handle-e"></div>
+                <div class="resize-handle resize-handle-s"></div>
+                <div class="excel-toolbar">
+                    <div class="excel-filename"><i class="fas fa-file-excel"></i> PPT_Template_Search_Data.xlsx</div>
+                    <div>Microsoft Excel</div>
+                </div>
+                <div class="excel-content">
+                    <div class="excel-title">PPT Template Search Data</div>
+                    <table class="excel-table">
+                    <thead>
+                        <tr>
+                            <th>Search Query</th>
+                            <th>Frequency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="search-query">business presentation template</td>
+                            <td class="search-frequency">2,847</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">corporate slides design</td>
+                            <td class="search-frequency">2,156</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">marketing pitch deck</td>
+                            <td class="search-frequency">1,923</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">modern powerpoint template</td>
+                            <td class="search-frequency">1,784</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">startup pitch presentation</td>
+                            <td class="search-frequency">1,567</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">financial report template</td>
+                            <td class="search-frequency">1,432</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">project proposal slides</td>
+                            <td class="search-frequency">1,298</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">creative presentation design</td>
+                            <td class="search-frequency">1,189</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">annual report template</td>
+                            <td class="search-frequency">1,067</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">sales presentation template</td>
+                            <td class="search-frequency">945</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">educational slides template</td>
+                            <td class="search-frequency">876</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">conference presentation</td>
+                            <td class="search-frequency">798</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">timeline presentation template</td>
+                            <td class="search-frequency">723</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">data visualization slides</td>
+                            <td class="search-frequency">654</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">team presentation template</td>
+                            <td class="search-frequency">587</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">product launch presentation</td>
+                            <td class="search-frequency">512</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">strategy presentation template</td>
+                            <td class="search-frequency">445</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">training presentation slides</td>
+                            <td class="search-frequency">378</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">investor pitch template</td>
+                            <td class="search-frequency">321</td>
+                        </tr>
+                        <tr>
+                            <td class="search-query">minimal presentation design</td>
+                            <td class="search-frequency">267</td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+
+            <!-- Word文档 -->
+            <div class="word-container">
+                <div class="document-checkbox" data-document="word">
+                    <input type="checkbox" id="word-checkbox" class="checkbox-input">
+                    <label for="word-checkbox" class="checkbox-label">
+                        <i class="fas fa-check"></i>
+                    </label>
+                </div>
+                <!-- 调整大小手柄 -->
+                <div class="resize-handle resize-handle-se"></div>
+                <div class="resize-handle resize-handle-e"></div>
+                <div class="resize-handle resize-handle-s"></div>
+                <div class="word-toolbar">
+                    <div class="word-filename"><i class="fas fa-file-word"></i> PPT_Template_User_Research_Report.docx</div>
+                    <div>Microsoft Word</div>
+                </div>
+                
+                <div class="word-document">
+                    <div class="word-header">
+                        <div class="word-title">PPT Template User Research Report</div>
+                        <div class="word-subtitle">Market Analysis & User Behavior Study | December 2024</div>
+                    </div>
+
+                    <div class="word-content">
+                        <div class="word-section">
+                            <h3>Executive Summary</h3>
+                            <p>This comprehensive user research report analyzes the current market trends and user preferences for PowerPoint templates. Based on extensive data collection from over <span class="highlight">50,000 users</span> across different industries, we identify key patterns in template usage and design preferences.</p>
+                        </div>
+
+                        <div class="word-section">
+                            <h3>Key Findings</h3>
+                            <ul class="word-list">
+                                <li><strong>Business Templates:</strong> Account for 68% of all searches</li>
+                                <li><strong>Visual Design:</strong> Modern, clean layouts preferred by 84% of users</li>
+                                <li><strong>Color Schemes:</strong> Professional blue/grey combinations dominate</li>
+                                <li><strong>Industry Focus:</strong> Corporate and startup presentations lead demand</li>
+                            </ul>
+                        </div>
+
+                        <div class="word-section">
+                            <h3>User Demographics</h3>
+                            <p>Primary users consist of business professionals (45%), educators (23%), consultants (18%), and entrepreneurs (14%). The majority of users are aged between 25-45 years and work in corporate environments requiring regular presentation creation.</p>
+                        </div>
+
+                        <div class="word-section">
+                            <h3>Design Preferences</h3>
+                            <p>Users consistently favor templates with <span class="highlight">minimalist designs</span>, clear typography, and structured layouts. Data visualization capabilities and infographic elements are increasingly important, with 72% of users seeking templates that support chart integration.</p>
+                        </div>
+
+                        <div class="word-section">
+                            <h3>Market Opportunities</h3>
+                            <ul class="word-list">
+                                <li>Industry-specific template collections</li>
+                                <li>Interactive presentation elements</li>
+                                <li>AI-powered design suggestions</li>
+                                <li>Collaborative editing features</li>
+                            </ul>
+                        </div>
+
+                        <div class="word-section">
+                            <h3>Recommendations</h3>
+                            <p>Based on our research, we recommend focusing on creating versatile business templates with customizable color schemes and enhanced data visualization tools. Priority should be given to developing templates for emerging sectors like technology startups and sustainable business presentations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claude任务输出容器 -->
+            <div class="claude-output-container" id="claudeOutputContainer">
+                <div class="document-checkbox" data-document="claude">
+                    <input type="checkbox" id="claude-checkbox" class="checkbox-input">
+                    <label for="claude-checkbox" class="checkbox-label">
+                        <i class="fas fa-check"></i>
+                    </label>
+                </div>
+                <!-- 调整大小手柄 -->
+                <div class="resize-handle resize-handle-se"></div>
+                <div class="resize-handle resize-handle-e"></div>
+                <div class="resize-handle resize-handle-s"></div>
+                <div class="claude-output-toolbar">
+                    <div class="claude-output-filename">
+                        <i class="fas fa-robot"></i> 
+                        <span id="claudeTaskTitle">Claude Task Output</span>
+                    </div>
+                    <div>Claude Sonnet 4</div>
+                </div>
+                
+                <div class="claude-output-content" id="claudeOutputContent">
+                    <div style="text-align: center; padding: 40px; color: #6b7280;">
+                        <i class="fas fa-robot" style="font-size: 32px; margin-bottom: 15px; color: #667eea;"></i>
+                        <p>Claude will display task results here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 悬浮对话框 -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- 消息将通过JavaScript动态添加 -->
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Ask Clippy Anything"
+                        rows="1"></textarea>
+                    <button class="send-button" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 基础JavaScript功能
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        
+        // 存储对话历史
+        let conversationHistory = [];
+        const API_BASE_URL = 'http://localhost:5000';
+
+        // 初始化：隐藏对话历史区域
+        chatMessages.classList.add('empty');
+
+        // 自动调整输入框高度
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        // 回车发送消息
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 发送按钮点击事件
+        sendButton.addEventListener('click', sendMessage);
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // 禁用发送按钮
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            // 添加用户消息到聊天界面
+            addMessage(message, 'user');
+            
+            // 添加到对话历史
+            conversationHistory.push({
+                role: 'user',
+                content: message
+            });
+            
+            // 清空输入框
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+
+            // 创建AI消息容器（用于流式更新）
+            const aiMessageDiv = createAIMessageContainer();
+            let fullResponse = '';
+
+            try {
+                let finalMessage = message;
+                
+                // 获取选中的文档内容
+                const selectedDocs = getSelectedDocumentsContent();
+                
+                // 如果有选中的文档，将它们作为附件添加到消息中
+                if (selectedDocs.length > 0) {
+                    finalMessage += "\n\n--- 附件文档 ---\n";
+                    selectedDocs.forEach((doc, index) => {
+                        finalMessage += `\n附件 ${index + 1}: ${doc.title} (${doc.type})\n`;
+                        finalMessage += "内容:\n" + doc.content + "\n";
+                        finalMessage += "-".repeat(50) + "\n";
+                    });
+                    finalMessage += "\n请基于以上附件内容来回答我的问题。";
+                }
+                
+                // 如果用户请求创建文档，添加HTML格式要求
+                if (isDocumentCreationRequest(message)) {
+                    finalMessage += "\n\nPlease create this as a complete HTML document with proper styling using CSS. Include all necessary HTML structure (<!DOCTYPE html>, <html>, <head>, <body>, etc.)";
+                }
+                
+                // 调用后端API (流式)
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: finalMessage,
+                        history: conversationHistory.slice(0, -1) // 不包含当前消息
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // 处理流式响应
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const jsonStr = line.slice(6);
+                            if (jsonStr.trim() === '') continue;
+
+                            try {
+                                const data = JSON.parse(jsonStr);
+                                
+                                if (data.error) {
+                                    throw new Error(data.error);
+                                }
+                                
+                                if (data.content) {
+                                    fullResponse += data.content;
+                                    updateAIMessage(aiMessageDiv, fullResponse);
+                                }
+                                
+                                if (data.done) {
+                                    // 流式响应完成
+                                    break;
+                                }
+                            } catch (parseError) {
+                                if (jsonStr.trim() !== '') {
+                                    console.warn('Failed to parse JSON:', jsonStr);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 添加完整回复到对话历史（使用原始消息，不是修改后的）
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: fullResponse
+                });
+
+                // 如果回复包含代码或HTML，或者是文档创建请求，显示在Claude输出容器中
+                if (isWebContent(fullResponse) || isDocumentCreationRequest(message)) {
+                    showClaudeOutput(fullResponse, isDocumentCreationRequest(message));
+                }
+                
+            } catch (error) {
+                console.error('Error calling Claude API:', error);
+                
+                // 显示错误消息
+                let errorMessage = '抱歉，连接AI服务时出现问题。';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = '无法连接到AI服务。请确保后端服务正在运行 (python server.py)。';
+                } else if (error.message.includes('HTTP error')) {
+                    errorMessage = 'AI服务响应错误，请稍后重试。';
+                } else {
+                    errorMessage = `错误: ${error.message}`;
+                }
+                
+                // 如果已经创建了AI消息容器，更新它显示错误
+                if (aiMessageDiv) {
+                    updateAIMessage(aiMessageDiv, errorMessage);
+                } else {
+                    addMessage(errorMessage, 'ai');
+                }
+            } finally {
+                // 重新启用发送按钮
+                sendButton.disabled = false;
+                sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            }
+        }
+
+        function createAIMessageContainer() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = '';
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return messageContent;
+        }
+
+        function updateAIMessage(messageElement, content) {
+            messageElement.textContent = content;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addMessage(content, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'user' ? 'U' : 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 显示对话历史区域（移除empty类）
+            chatMessages.classList.remove('empty');
+
+            // 只有当AI回复包含HTML/网页内容时才显示Claude容器
+            if (type === 'ai' && isWebContent(content)) {
+                showClaudeOutput(content);
+            } else if (type === 'ai') {
+                // 如果AI回复不是网页内容，隐藏Claude容器
+                hideClaudeOutput();
+            }
+        }
+
+        // 获取选中文档的内容
+        function getSelectedDocumentsContent() {
+            const selectedDocs = [];
+            
+            // 检查Excel容器是否被选中
+            const excelContainer = document.querySelector('.excel-container');
+            if (excelContainer && excelContainer.classList.contains('selected')) {
+                const excelContent = extractExcelContent();
+                if (excelContent) {
+                    selectedDocs.push({
+                        type: 'excel',
+                        title: 'PPT Template Search Data',
+                        content: excelContent
+                    });
+                }
+            }
+            
+            // 检查Word容器是否被选中
+            const wordContainer = document.querySelector('.word-container');
+            if (wordContainer && wordContainer.classList.contains('selected')) {
+                const wordContent = extractWordContent();
+                if (wordContent) {
+                    selectedDocs.push({
+                        type: 'word',
+                        title: 'PPT Template User Research Report',
+                        content: wordContent
+                    });
+                }
+            }
+            
+            // 检查Claude容器是否被选中
+            const claudeContainer = document.getElementById('claudeOutputContainer');
+            if (claudeContainer && claudeContainer.classList.contains('selected')) {
+                const claudeContent = extractClaudeContent();
+                if (claudeContent) {
+                    selectedDocs.push({
+                        type: 'claude_output',
+                        title: 'Claude Task Output',
+                        content: claudeContent
+                    });
+                }
+            }
+            
+            return selectedDocs;
+        }
+
+        // 提取Excel内容
+        function extractExcelContent() {
+            const table = document.querySelector('.excel-table');
+            if (!table) return null;
+            
+            let content = "PPT Template Search Data:\n\n";
+            const rows = table.querySelectorAll('tr');
+            
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('th, td');
+                const rowData = Array.from(cells).map(cell => cell.textContent.trim());
+                
+                if (index === 0) {
+                    content += rowData.join(' | ') + '\n';
+                    content += '-'.repeat(50) + '\n';
+                } else {
+                    content += rowData.join(' | ') + '\n';
+                }
+            });
+            
+            return content;
+        }
+
+        // 提取Word内容
+        function extractWordContent() {
+            const wordDocument = document.querySelector('.word-document');
+            if (!wordDocument) return null;
+            
+            let content = "PPT Template User Research Report\n";
+            content += "Market Analysis & User Behavior Study | December 2024\n\n";
+            
+            const sections = wordDocument.querySelectorAll('.word-section');
+            sections.forEach(section => {
+                const heading = section.querySelector('h3');
+                if (heading) {
+                    content += heading.textContent + '\n';
+                    content += '='.repeat(heading.textContent.length) + '\n';
+                }
+                
+                const paragraphs = section.querySelectorAll('p');
+                paragraphs.forEach(p => {
+                    content += p.textContent + '\n\n';
+                });
+                
+                const lists = section.querySelectorAll('ul, ol');
+                lists.forEach(list => {
+                    const items = list.querySelectorAll('li');
+                    items.forEach(item => {
+                        content += '• ' + item.textContent + '\n';
+                    });
+                    content += '\n';
+                });
+            });
+            
+            return content;
+        }
+
+        // 提取Claude输出内容
+        function extractClaudeContent() {
+            const claudeContent = document.getElementById('claudeOutputContent');
+            if (!claudeContent) return null;
+            
+            const iframe = claudeContent.querySelector('iframe');
+            if (iframe) {
+                try {
+                    // 尝试获取iframe内容
+                    return iframe.srcdoc || 'Claude generated HTML content (iframe)';
+                } catch (e) {
+                    return 'Claude generated content (unable to extract due to security restrictions)';
+                }
+            }
+            
+            return claudeContent.textContent.trim() || null;
+        }
+
+        // 检查用户是否要求创建文档
+        function isDocumentCreationRequest(message) {
+            const messageLower = message.toLowerCase();
+            
+            // 例外情况：如果是学习模板的请求，不触发文档创建模式
+            if (messageLower.includes('learn this as template') || 
+                messageLower.includes('learn this template') ||
+                messageLower.includes('study this template')) {
+                return false;
+            }
+            
+            const documentKeywords = [
+                'slide', 'slides', 'presentation', 'ppt', 'powerpoint',
+                'word', 'document', 'doc', 'docx', 
+                'excel', 'spreadsheet', 'table', 'xlsx',
+                'create', 'make', 'generate', 'build', 'design'
+            ];
+            
+            // 检查是否包含创建文档的关键词组合
+            const hasDocumentKeyword = documentKeywords.some(keyword => 
+                messageLower.includes(keyword));
+            
+            const hasCreationKeyword = ['create', 'make', 'generate', 'build', 'design'].some(keyword =>
+                messageLower.includes(keyword));
+            
+            return hasDocumentKeyword && (hasCreationKeyword || 
+                messageLower.includes('create') || 
+                messageLower.includes('make') ||
+                messageLower.includes('generate') ||
+                messageLower.includes('build') ||
+                messageLower.includes('design'));
+        }
+
+        function isWebContent(content) {
+            // 检查是否包含HTML代码块或HTML标签
+            const hasHtmlCodeBlock = content.includes('```html') || content.includes('```HTML');
+            const hasHtmlTags = content.includes('<') && content.includes('>');
+            
+            // 检查是否包含常见的HTML元素
+            const htmlElements = ['<html', '<div', '<p>', '<span', '<h1', '<h2', '<h3', 
+                                 '<button', '<input', '<form', '<style', '<script', 
+                                 '<header', '<footer', '<nav', '<section', '<article'];
+            
+            const hasHtmlElements = htmlElements.some(tag => 
+                content.toLowerCase().includes(tag.toLowerCase()));
+            
+            return (hasHtmlCodeBlock || hasHtmlTags) && hasHtmlElements;
+        }
+
+        function extractHtmlContent(content) {
+            // 方法1: 提取 ```html 代码块
+            const htmlCodeBlockRegex = /```html\s*([\s\S]*?)\s*```/i;
+            const htmlCodeMatch = content.match(htmlCodeBlockRegex);
+            if (htmlCodeMatch) {
+                return htmlCodeMatch[1].trim();
+            }
+            
+            // 方法2: 提取 ``` 代码块（可能不标注html）
+            const codeBlockRegex = /```\s*([\s\S]*?)\s*```/;
+            const codeMatch = content.match(codeBlockRegex);
+            if (codeMatch) {
+                const codeContent = codeMatch[1].trim();
+                // 检查是否是HTML内容
+                if (codeContent.includes('<') && codeContent.includes('>')) {
+                    return codeContent;
+                }
+            }
+            
+            // 方法3: 提取从<!DOCTYPE或<html开始的完整HTML
+            const htmlDocRegex = /(<!DOCTYPE[\s\S]*)/i;
+            const htmlDocMatch = content.match(htmlDocRegex);
+            if (htmlDocMatch) {
+                return htmlDocMatch[1].trim();
+            }
+            
+            // 方法4: 提取最大的HTML标签块
+            const htmlTagRegex = /(<[^>]+>[\s\S]*?<\/[^>]+>)/;
+            const htmlTagMatch = content.match(htmlTagRegex);
+            if (htmlTagMatch) {
+                // 找到第一个标签后，尝试提取整个HTML结构
+                const startIndex = content.indexOf(htmlTagMatch[1]);
+                const possibleHtml = content.substring(startIndex);
+                
+                // 简单的HTML结构提取
+                let htmlContent = '';
+                let tagStack = [];
+                let i = 0;
+                
+                while (i < possibleHtml.length) {
+                    if (possibleHtml[i] === '<') {
+                        const tagEnd = possibleHtml.indexOf('>', i);
+                        if (tagEnd !== -1) {
+                            const tag = possibleHtml.substring(i, tagEnd + 1);
+                            htmlContent += tag;
+                            
+                            // 简单的标签匹配检查
+                            if (tag.includes('</')) {
+                                tagStack.pop();
+                            } else if (!tag.includes('/>') && !tag.includes('<br') && !tag.includes('<hr')) {
+                                tagStack.push(tag);
+                            }
+                            
+                            i = tagEnd + 1;
+                            
+                            // 如果标签栈为空且我们已经有内容，说明HTML结构完整
+                            if (tagStack.length === 0 && htmlContent.length > 50) {
+                                break;
+                            }
+                        } else {
+                            htmlContent += possibleHtml[i];
+                            i++;
+                        }
+                    } else {
+                        htmlContent += possibleHtml[i];
+                        i++;
+                    }
+                }
+                
+                if (htmlContent.trim()) {
+                    return htmlContent.trim();
+                }
+            }
+            
+            // 如果都没找到，返回原内容
+            return content;
+        }
+
+        function showClaudeOutput(content, isDocumentRequest = false) {
+            const claudeContainer = document.getElementById('claudeOutputContainer');
+            const claudeContent = document.getElementById('claudeOutputContent');
+            const claudeTitle = document.getElementById('claudeTaskTitle');
+            
+            // 提取HTML内容
+            let htmlContent = extractHtmlContent(content);
+            
+            // 如果是文档创建请求但没有提取到HTML，尝试直接使用内容
+            if (isDocumentRequest && !htmlContent.includes('<html')) {
+                // 如果内容包含HTML标签但不是完整的HTML文档，包装它
+                if (content.includes('<') && content.includes('>')) {
+                    htmlContent = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Document</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    ${content}
+</body>
+</html>`;
+                }
+            }
+            
+            // 更新标题
+            if (isDocumentRequest) {
+                claudeTitle.textContent = 'Generated Document';
+            } else {
+                claudeTitle.textContent = 'Generated Web Content';
+            }
+            
+            // 显示容器
+            claudeContainer.style.display = 'block';
+            
+            // 创建iframe来显示HTML内容
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.background = 'white';
+            
+            // 清空之前的内容并添加iframe
+            claudeContent.innerHTML = '';
+            claudeContent.appendChild(iframe);
+            
+            // 写入HTML内容到iframe
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(htmlContent);
+            iframeDoc.close();
+        }
+
+        function hideClaudeOutput() {
+            const claudeContainer = document.getElementById('claudeOutputContainer');
+            claudeContainer.style.display = 'none';
+        }
+
+        // 检查后端服务状态
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    console.log('✅ 后端服务连接正常');
+                    // 更新聊天输入框占位符
+                    chatInput.placeholder = 'Ask Clippy Anything';
+                    return true;
+                }
+            } catch (error) {
+                console.log('❌ 后端服务未连接');
+                // 更新聊天输入框占位符
+                chatInput.placeholder = '请先启动后端服务 (python server.py)';
+                return false;
+            }
+            return false;
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            // 检查服务状态
+            checkServerStatus();
+        });
+
+        // 拖拽功能
+        let isDragging = false;
+        let currentElement = null;
+        let offset = { x: 0, y: 0 };
+        let selectedDocuments = new Set();
+        let mouseDownPos = { x: 0, y: 0 };
+        let mouseDownTarget = null;
+        const DRAG_THRESHOLD = 5;
+
+        // 调整大小相关变量
+        let isResizing = false;
+        let currentResizeTarget = null;
+        let resizeDirection = null;
+        let originalRect = {};
+        let startPos = {};
+
+        // 为文档容器添加拖拽功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const excelContainer = document.querySelector('.excel-container');
+            const wordContainer = document.querySelector('.word-container');
+            const claudeContainer = document.getElementById('claudeOutputContainer');
+
+            // 为文档容器添加拖拽事件
+            [excelContainer, wordContainer, claudeContainer].forEach(element => {
+                element.addEventListener('mousedown', handleMouseDown);
+                
+                // 为调整大小手柄添加事件
+                const resizeHandles = element.querySelectorAll('.resize-handle');
+                resizeHandles.forEach(handle => {
+                    handle.addEventListener('mousedown', handleResizeStart);
+                });
+            });
+
+            // 为复选框添加选择事件
+            const excelCheckbox = document.getElementById('excel-checkbox');
+            const wordCheckbox = document.getElementById('word-checkbox');
+            const claudeCheckbox = document.getElementById('claude-checkbox');
+
+            excelCheckbox.addEventListener('change', function(e) {
+                handleCheckboxChange(excelContainer, e.target.checked);
+                e.stopPropagation();
+            });
+
+            wordCheckbox.addEventListener('change', function(e) {
+                handleCheckboxChange(wordContainer, e.target.checked);
+                e.stopPropagation();
+            });
+
+            claudeCheckbox.addEventListener('change', function(e) {
+                handleCheckboxChange(claudeContainer, e.target.checked);
+                e.stopPropagation();
+            });
+
+            // 防止复选框区域触发拖拽
+            document.querySelectorAll('.document-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                });
+            });
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('keydown', handleKeyDown);
+        });
+
+        function handleCheckboxChange(container, isChecked) {
+            if (isChecked) {
+                selectDocument(container);
+            } else {
+                deselectDocument(container);
+            }
+        }
+
+        function handleMouseDown(e) {
+            // 如果点击的是复选框区域，不启动拖拽
+            if (e.target.closest('.document-checkbox')) {
+                return;
+            }
+
+            // 如果点击的是滚动条区域，不启动拖拽
+            if (e.target.scrollHeight > e.target.clientHeight && 
+                e.offsetX > e.target.clientWidth - 20) {
+                return;
+            }
+
+            const element = e.currentTarget;
+            mouseDownTarget = element;
+            mouseDownPos.x = e.clientX;
+            mouseDownPos.y = e.clientY;
+            
+            const rect = element.getBoundingClientRect();
+            offset.x = e.clientX - rect.left;
+            offset.y = e.clientY - rect.top;
+
+            e.preventDefault();
+        }
+
+        function handleMouseMove(e) {
+            if (isResizing && currentResizeTarget) {
+                performResize(e);
+                return;
+            }
+            
+            if (mouseDownTarget && !isDragging && !isResizing) {
+                const deltaX = e.clientX - mouseDownPos.x;
+                const deltaY = e.clientY - mouseDownPos.y;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                
+                if (distance > DRAG_THRESHOLD) {
+                    startDrag(mouseDownTarget);
+                }
+            }
+            
+            if (isDragging && currentElement) {
+                drag(e);
+            }
+        }
+
+        function handleMouseUp(e) {
+            if (isResizing) {
+                stopResize();
+            } else if (isDragging) {
+                stopDrag();
+            }
+            mouseDownTarget = null;
+            mouseDownPos.x = 0;
+            mouseDownPos.y = 0;
+        }
+
+        function selectDocument(element) {
+            element.classList.add('selected');
+            selectedDocuments.add(element);
+            
+            // 同步复选框状态
+            const checkbox = element.querySelector('.checkbox-input');
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+            
+            updateSelectionInfo();
+        }
+
+        function deselectDocument(element) {
+            element.classList.remove('selected');
+            selectedDocuments.delete(element);
+            
+            // 同步复选框状态
+            const checkbox = element.querySelector('.checkbox-input');
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+            
+            updateSelectionInfo();
+        }
+
+        function toggleSelection(element) {
+            if (selectedDocuments.has(element)) {
+                deselectDocument(element);
+            } else {
+                selectDocument(element);
+            }
+        }
+
+        function clearAllSelections() {
+            selectedDocuments.forEach(element => {
+                element.classList.remove('selected');
+                // 同步复选框状态
+                const checkbox = element.querySelector('.checkbox-input');
+                if (checkbox) {
+                    checkbox.checked = false;
+                }
+            });
+            selectedDocuments.clear();
+            updateSelectionInfo();
+        }
+
+        function updateSelectionInfo() {
+            console.log(`Selected documents: ${selectedDocuments.size}`);
+            // 这里可以添加更多的选择状态反馈
+        }
+
+        function handleKeyDown(e) {
+            // 按Escape键取消所有选择
+            if (e.key === 'Escape') {
+                clearAllSelections();
+            }
+            // 按Ctrl+A选择所有文档
+            if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+                e.preventDefault();
+                const excelContainer = document.querySelector('.excel-container');
+                const wordContainer = document.querySelector('.word-container');
+                const claudeContainer = document.getElementById('claudeOutputContainer');
+                
+                selectDocument(excelContainer);
+                selectDocument(wordContainer);
+                
+                // 只有当Claude容器可见时才选择它
+                if (claudeContainer && claudeContainer.style.display !== 'none') {
+                    selectDocument(claudeContainer);
+                }
+            }
+        }
+
+        function startDrag(element) {
+            isDragging = true;
+            currentElement = element;
+            element.classList.add('dragging');
+        }
+
+        function drag(e) {
+            if (!isDragging || !currentElement) return;
+            
+            e.preventDefault();
+            
+            const x = e.clientX - offset.x;
+            const y = e.clientY - offset.y;
+            
+            // 限制在画布范围内
+            const maxX = window.innerWidth - currentElement.offsetWidth;
+            const maxY = window.innerHeight - currentElement.offsetHeight;
+            
+            const boundedX = Math.max(0, Math.min(x, maxX));
+            const boundedY = Math.max(0, Math.min(y, maxY));
+            
+            currentElement.style.left = boundedX + 'px';
+            currentElement.style.top = boundedY + 'px';
+        }
+
+        function stopDrag() {
+            if (currentElement) {
+                currentElement.classList.remove('dragging');
+                currentElement = null;
+            }
+            isDragging = false;
+        }
+
+        // 调整大小相关函数
+        function handleResizeStart(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isResizing = true;
+            currentResizeTarget = e.target.closest('.excel-container, .word-container, .claude-output-container');
+            
+            // 确定调整方向
+            if (e.target.classList.contains('resize-handle-se')) {
+                resizeDirection = 'se';
+            } else if (e.target.classList.contains('resize-handle-e')) {
+                resizeDirection = 'e';
+            } else if (e.target.classList.contains('resize-handle-s')) {
+                resizeDirection = 's';
+            }
+            
+            // 记录初始位置和尺寸
+            const rect = currentResizeTarget.getBoundingClientRect();
+            originalRect = {
+                width: rect.width,
+                height: rect.height,
+                left: rect.left,
+                top: rect.top
+            };
+            
+            startPos = {
+                x: e.clientX,
+                y: e.clientY
+            };
+            
+            // 添加调整大小状态的样式
+            currentResizeTarget.style.userSelect = 'none';
+            currentResizeTarget.classList.add('resizing'); // 添加调整大小状态类
+            document.body.style.cursor = e.target.style.cursor;
+            
+            // 临时移除CSS的高度限制，允许自由调整大小
+            currentResizeTarget.style.maxHeight = 'none';
+            currentResizeTarget.style.height = rect.height + 'px';
+        }
+
+        function performResize(e) {
+            if (!isResizing || !currentResizeTarget) return;
+            
+            const deltaX = e.clientX - startPos.x;
+            const deltaY = e.clientY - startPos.y;
+            
+            let newWidth = originalRect.width;
+            let newHeight = originalRect.height;
+            
+            if (resizeDirection === 'se' || resizeDirection === 'e') {
+                newWidth = Math.max(200, originalRect.width + deltaX);
+            }
+            
+            if (resizeDirection === 'se' || resizeDirection === 's') {
+                newHeight = Math.max(150, originalRect.height + deltaY);
+            }
+            
+            // 确保不超出视窗边界
+            const maxWidth = window.innerWidth - originalRect.left - 20;
+            const maxHeight = window.innerHeight - originalRect.top - 20;
+            
+            newWidth = Math.min(newWidth, maxWidth);
+            newHeight = Math.min(newHeight, maxHeight);
+            
+            currentResizeTarget.style.width = newWidth + 'px';
+            currentResizeTarget.style.height = newHeight + 'px';
+        }
+
+        function stopResize() {
+            if (currentResizeTarget) {
+                currentResizeTarget.style.userSelect = '';
+                currentResizeTarget.classList.remove('resizing'); // 移除调整大小状态类
+                // 不恢复max-height限制，保持用户调整后的大小
+                // 这样用户就可以自由调整容器大小而不受CSS限制
+                currentResizeTarget = null;
+            }
+            
+            document.body.style.cursor = '';
+            isResizing = false;
+            resizeDirection = null;
+        }
+    </script>
+</body>
+</html>

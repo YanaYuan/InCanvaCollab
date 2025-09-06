@@ -47,10 +47,9 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             padding: 20px;
             max-height: 70vh;
-            overflow: hidden; /* 隐藏滚动条 */
-            /* 隐藏滚动条的跨浏览器支持 */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
+            overflow: hidden; /* 容器本身不滚动 */
+            cursor: move;
+            user-select: none;
             z-index: 10; /* Excel容器层级最低 */
         }
 
@@ -59,14 +58,6 @@
             width: 0px;
             background: transparent;
             display: none; /* Chrome, Safari, Opera */
-        }
-
-        .excel-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-            text-align: center;
         }
 
         .excel-table {
@@ -104,23 +95,6 @@
             color: #0066cc;
         }
 
-        /* Excel表格容器 */
-        .excel-container {
-            position: absolute;
-            left: 40px;
-            top: 440px;
-            width: 32%;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            max-height: 60vh;
-            overflow-y: auto;
-            cursor: move;
-            user-select: none;
-            z-index: 10; /* Excel容器层级最低 */
-        }
-
         .excel-container:hover {
             box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
         }
@@ -131,14 +105,12 @@
             left: 34%;
             top: 80px;
             width: 32%;
-            height: 60vh;
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             border: none;
-            max-height: 60vh;
+            max-height: 70vh;
             overflow: hidden;
-            font-family: 'Calibri', 'Times New Roman', serif;
             padding: 20px;
             cursor: move;
             user-select: none;
@@ -242,6 +214,7 @@
         /* Excel复选框层级 */
         .excel-container .document-checkbox {
             z-index: 15; /* Excel复选框 */
+            top: 13px; /* 与工具栏中的Microsoft Excel文字垂直对齐 */
         }
 
         /* Word复选框层级 */
@@ -316,6 +289,14 @@
             margin-right: 6px;
         }
 
+        .excel-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
         .excel-content {
             padding: 20px;
             height: calc(100% - 70px); /* 动态高度，减去工具栏高度 */
@@ -335,12 +316,14 @@
             display: none; /* Chrome, Safari, Opera */
         }
 
+        /* Word工具栏样式 */
         .word-toolbar {
-            background: #f8f9fa;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 8px 50px 8px 15px; /* 增加右侧padding为复选框留空间 */
+            background: #f8f9fa; /* 与Excel相同的灰色背景 */
+            border-bottom: 1px solid #e5e7eb; /* 与Excel相同的边框色 */
+            padding: 8px 50px 8px 15px; /* 为复选框留空间 */
             font-size: 11px;
-            color: #6b7280;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; /* 与Excel相同的系统字体 */
+            color: #6b7280; /* 与Excel相同的文字颜色 */
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -349,7 +332,7 @@
 
         .word-filename {
             font-weight: 500;
-            color: #374151;
+            color: #374151; /* 与Excel相同的文件名颜色 */
         }
 
         .word-filename i {
@@ -357,13 +340,20 @@
             margin-right: 6px;
         }
 
+        .word-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .word-document {
             padding: 20px;
-            height: calc(100% - 50px); /* 动态高度，减去工具栏高度 */
+            height: calc(100% - 70px); /* 动态高度，与Excel相同，减去工具栏高度 */
             overflow-y: auto;
             background: white;
             margin: 0;
             box-shadow: none;
+            font-family: 'Calibri', 'Times New Roman', serif; /* Word文档内容保持Calibri字体 */
         }
 
         /* 隐藏Word文档滚动条但保持滚动功能 */
@@ -526,6 +516,12 @@
         .claude-output-filename i {
             color: #667eea; /* Claude紫色图标 */
             margin-right: 6px;
+        }
+
+        .claude-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .claude-output-content {
@@ -777,6 +773,462 @@
                 transform: translateY(0);
             }
         }
+
+        /* Collab 椭圆形滑动开关样式 */
+        .collab-toggle {
+            position: relative;
+            width: 42px;
+            height: 20px;
+            background: #E5E5EA;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .collab-toggle:hover {
+            background: #D1D1D6;
+        }
+
+        .collab-toggle.active {
+            background: #34C759;
+            justify-content: flex-end;
+        }
+
+        .collab-toggle.active:hover {
+            background: #30B550;
+        }
+
+        .collab-toggle-slider {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            left: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: #8E8E93;
+        }
+
+        .collab-toggle.active .collab-toggle-slider {
+            left: calc(100% - 18px);
+            background: white;
+            color: #34C759;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* 用户协作指示器 */
+        .user-collaborator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 122, 204, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            z-index: 20;
+            animation: slideInFromRight 0.3s ease;
+        }
+
+        .user-collaborator.active {
+            display: flex;
+        }
+
+        .user-avatar {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .user-status {
+            font-size: 10px;
+            opacity: 0.9;
+        }
+
+        /* 单元格编辑动画 */
+        .cell-editing {
+            position: relative;
+            background: rgba(0, 122, 204, 0.1) !important;
+            border: 2px solid #007acc !important;
+            animation: cellPulse 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes cellPulse {
+            from { box-shadow: 0 0 5px rgba(0, 122, 204, 0.3); }
+            to { box-shadow: 0 0 15px rgba(0, 122, 204, 0.6); }
+        }
+
+        .typing-cursor {
+            display: inline-block;
+            width: 1px;
+            height: 14px;
+            background: #007acc;
+            animation: blink 1s step-end infinite;
+            margin-left: 1px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* 浮动协作气泡样式 */
+        .collaboration-bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        .collaboration-bubble.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        
+        .collaboration-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 12px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid rgba(255, 255, 255, 0.95);
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+        }
+        
+        .bubble-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0078d4;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .bubble-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .bubble-status {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00c851;
+            animation: bubble-pulse 1.5s infinite;
+        }
+        
+        .bubble-status.selecting {
+            background: #ffbb33;
+            animation: none;
+        }
+        
+        .bubble-status.typing {
+            background: #00c851;
+            animation: bubble-pulse 1.5s infinite;
+        }
+        
+        .bubble-status.thinking {
+            background: #667eea;
+            animation: bubble-pulse 1.5s infinite;
+        }
+        
+        @keyframes bubble-pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+        
+        /* 气泡浮动动画 */
+        .collaboration-bubble.floating {
+            animation: bubble-float 3s ease-in-out infinite;
+        }
+        
+        @keyframes bubble-float {
+            0%, 100% {
+                transform: scale(1) translateY(0px);
+            }
+            50% {
+                transform: scale(1) translateY(-2px);
+            }
+        }
+
+        /* Word协作气泡特定样式 */
+        .word-collaboration-bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        .word-collaboration-bubble.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        
+        .word-collaboration-bubble::after {
+            content: '';
+            position: absolute;
+            left: 20px; /* 箭头距离气泡左边缘20px */
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+        }
+        
+        /* 默认箭头指向下方（气泡在元素上方时） */
+        .word-collaboration-bubble::after {
+            bottom: -6px;
+            border-top: 6px solid rgba(255, 255, 255, 0.95);
+        }
+        
+        /* 当气泡在元素下方时，箭头指向上方 */
+        .word-collaboration-bubble[style*="--arrow-direction: up"]::after {
+            top: -6px;
+            bottom: auto;
+            border-top: none;
+            border-bottom: 6px solid rgba(255, 255, 255, 0.95);
+        }
+        
+        .word-collaboration-bubble .bubble-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #28a745; /* Yuecong使用绿色头像 */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .word-collaboration-bubble.floating {
+            animation: bubble-float 3s ease-in-out infinite;
+        }
+
+        /* Claude协作气泡特定样式 */
+        .claude-collaboration-bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            white-space: nowrap;
+            max-width: 200px;
+        }
+        
+        .claude-collaboration-bubble.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        
+        .claude-collaboration-bubble::after {
+            content: '';
+            position: absolute;
+            right: 20px; /* 箭头距离气泡右边缘20px */
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+        }
+        
+        /* 默认箭头指向下方（气泡在上方时） */
+        .claude-collaboration-bubble::after {
+            bottom: -6px;
+            border-top: 6px solid rgba(255, 255, 255, 0.95);
+        }
+        
+        /* 当气泡在下方时，箭头指向上方 */
+        .claude-collaboration-bubble[style*="--arrow-direction: up"]::after {
+            top: -6px;
+            bottom: auto;
+            border-top: none;
+            border-bottom: 6px solid rgba(255, 255, 255, 0.95);
+        }
+        
+        .claude-collaboration-bubble .bubble-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea; /* Claude紫色头像 */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .claude-collaboration-bubble.floating {
+            animation: bubble-float 3s ease-in-out infinite;
+        }
+
+        /* Word文档光标动画 */
+        .typing-cursor {
+            display: inline-block;
+            width: 1px;
+            height: 16px;
+            background-color: #333;
+            margin-left: 1px;
+        }
+
+        @keyframes cursor-blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            51%, 100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* 全局动画控制开关 */
+        .global-animation-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 8px 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #374151;
+            transition: all 0.3s ease;
+        }
+        
+        .global-animation-control:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .global-animation-toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #d1d5db;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .global-animation-toggle.active {
+            background: #10b981;
+        }
+        
+        .global-animation-toggle .slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .global-animation-toggle.active .slider {
+            transform: translateX(24px);
+        }
+        
+        .global-animation-control .icon {
+            font-size: 16px;
+            color: #667eea;
+        }
     </style>
 </head>
 <body>
@@ -805,7 +1257,14 @@
                 <div class="resize-handle resize-handle-s"></div>
                 <div class="excel-toolbar">
                     <div class="excel-filename"><i class="fas fa-file-excel"></i> PPT_Template_Search_Data.xlsx</div>
-                    <div>Microsoft Excel</div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="collab-toggle" id="collab-toggle">
+                            <div class="collab-toggle-slider">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div>Microsoft Excel</div>
+                    </div>
                 </div>
                 <div class="excel-content">
                     <div class="excel-title">PPT Template Search Data</div>
@@ -915,8 +1374,15 @@
                 <div class="resize-handle resize-handle-e"></div>
                 <div class="resize-handle resize-handle-s"></div>
                 <div class="word-toolbar">
-                    <div class="word-filename"><i class="fas fa-file-word"></i> PPT_Template_User_Research_Report.docx</div>
-                    <div>Microsoft Word</div>
+                    <div class="word-filename"><i class="fas fa-file-word"></i> Research_Report.docx</div>
+                    <div class="word-toolbar-right">
+                        <div class="collab-toggle" id="word-collab-toggle">
+                            <div class="collab-toggle-slider">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <span>Microsoft Word</span>
+                    </div>
                 </div>
                 
                 <div class="word-document">
@@ -986,7 +1452,9 @@
                         <i class="fas fa-robot"></i> 
                         <span id="claudeTaskTitle">Claude Task Output</span>
                     </div>
-                    <div>Claude Sonnet 4</div>
+                    <div class="claude-toolbar-right">
+                        <span>Claude Sonnet 4</span>
+                    </div>
                 </div>
                 
                 <div class="claude-output-content" id="claudeOutputContent">
@@ -1032,6 +1500,1535 @@
             ? 'http://localhost:5000' 
             : window.location.origin;
 
+        // ===== Excel协作动画系统 =====
+        class ExcelCollaborationAnimator {
+            constructor() {
+                this.isActive = false;
+                this.animationInterval = null;
+                this.currentStep = 0;
+                this.collaborationBubble = null;
+                
+                // 添加状态管理
+                this.activeTimeouts = new Set();
+                this.animatingCells = new Set();
+                this.isAnimationRunning = false;
+                
+                // 动画序列配置
+                this.animationSequence = [
+                    { action: 'selectCell', target: 'tbody tr:nth-child(2) td:nth-child(1)', duration: 1000, text: '' },
+                    { action: 'typeText', target: 'tbody tr:nth-child(2) td:nth-child(1)', duration: 2000, text: 'AI assistant template' },
+                    { action: 'pause', duration: 800 },
+                    { action: 'selectCell', target: 'tbody tr:nth-child(2) td:nth-child(2)', duration: 1000, text: '' },
+                    { action: 'editNumber', target: 'tbody tr:nth-child(2) td:nth-child(2)', duration: 1500, newValue: '3156' },
+                    { action: 'pause', duration: 1200 },
+                    { action: 'selectCell', target: 'tbody tr:nth-child(3) td:nth-child(1)', duration: 1000, text: '' },
+                    { action: 'typeText', target: 'tbody tr:nth-child(3) td:nth-child(1)', duration: 2000, text: 'modern AI dashboard' },
+                    { action: 'pause', duration: 800 },
+                    { action: 'selectCell', target: 'tbody tr:nth-child(3) td:nth-child(2)', duration: 1000, text: '' },
+                    { action: 'editNumber', target: 'tbody tr:nth-child(3) td:nth-child(2)', duration: 1500, newValue: '2389' }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                const toggleBtn = document.getElementById('collab-toggle');
+                const excelContainer = document.querySelector('.excel-container');
+                
+                // 创建浮动气泡
+                this.createCollaborationBubble();
+                
+                // 切换按钮事件
+                toggleBtn.addEventListener('click', () => {
+                    this.toggle();
+                });
+            }
+            
+            createCollaborationBubble() {
+                const excelContainer = document.querySelector('.excel-container');
+                
+                this.collaborationBubble = document.createElement('div');
+                this.collaborationBubble.className = 'collaboration-bubble';
+                this.collaborationBubble.innerHTML = `
+                    <div class="bubble-avatar">A</div>
+                    <span class="bubble-name">Aibo</span>
+                    <div class="bubble-status selecting"></div>
+                `;
+                
+                excelContainer.appendChild(this.collaborationBubble);
+            }
+            
+            toggle() {
+                const toggleBtn = document.getElementById('collab-toggle');
+                
+                this.isActive = !this.isActive;
+                
+                if (this.isActive) {
+                    toggleBtn.classList.add('active');
+                    this.startAnimation();
+                } else {
+                    toggleBtn.classList.remove('active');
+                    this.stopAnimation();
+                    this.hideBubble();
+                }
+            }
+            
+            startAnimation() {
+                if (this.animationInterval) return;
+                
+                this.currentStep = 0;
+                this.runAnimationSequence();
+            }
+            
+            stopAnimation() {
+                if (this.animationInterval) {
+                    clearTimeout(this.animationInterval);
+                    this.animationInterval = null;
+                }
+                
+                // 清理所有活动的setTimeout
+                this.activeTimeouts.forEach(timeoutId => {
+                    clearTimeout(timeoutId);
+                });
+                this.activeTimeouts.clear();
+                
+                // 重置状态
+                this.isAnimationRunning = false;
+                this.animatingCells.clear();
+                
+                // 强制清理所有动画效果
+                this.clearAllAnimations();
+            }
+            
+            runAnimationSequence() {
+                if (!this.isActive || this.isAnimationRunning) return;
+                
+                // 设置运行状态标志
+                this.isAnimationRunning = true;
+                
+                const step = this.animationSequence[this.currentStep];
+                if (!step) {
+                    // 重置到开始
+                    this.currentStep = 0;
+                    this.isAnimationRunning = false;
+                    this.animationInterval = setTimeout(() => this.runAnimationSequence(), 3000);
+                    return;
+                }
+                
+                this.executeStep(step).then(() => {
+                    this.currentStep++;
+                    this.isAnimationRunning = false;
+                    this.animationInterval = setTimeout(() => this.runAnimationSequence(), step.duration);
+                }).catch(() => {
+                    // 出错时重置状态
+                    this.isAnimationRunning = false;
+                    this.currentStep = 0;
+                });
+            }
+            
+            async executeStep(step) {
+                const excelTable = document.querySelector('.excel-table');
+                if (!excelTable) return;
+                
+                switch (step.action) {
+                    case 'selectCell':
+                        this.selectCell(excelTable.querySelector(step.target));
+                        break;
+                    case 'typeText':
+                        await this.typeInCell(excelTable.querySelector(step.target), step.text);
+                        break;
+                    case 'editNumber':
+                        await this.editNumberInCell(excelTable.querySelector(step.target), step.newValue);
+                        break;
+                    case 'pause':
+                        // 什么也不做，只是等待
+                        break;
+                }
+            }
+            
+            selectCell(cell) {
+                if (!cell) return;
+                
+                // 清除之前的选中状态
+                document.querySelectorAll('.cell-editing').forEach(c => {
+                    c.classList.remove('cell-editing');
+                });
+                
+                // 选中新单元格
+                cell.classList.add('cell-editing');
+                
+                // 显示并定位气泡
+                this.showBubbleAtCell(cell, 'selecting');
+            }
+            
+            showBubbleAtCell(targetCell, status = 'selecting') {
+                if (!targetCell || !this.collaborationBubble) return;
+                
+                const excelContainer = document.querySelector('.excel-container');
+                const cellRect = targetCell.getBoundingClientRect();
+                const containerRect = excelContainer.getBoundingClientRect();
+                
+                // 计算相对于容器的位置
+                let x = cellRect.left - containerRect.left + cellRect.width + 10;
+                let y = cellRect.top - containerRect.top - 10;
+                
+                // 边界检测和调整
+                const bubbleWidth = 90; // 估算气泡宽度
+                const bubbleHeight = 32; // 估算气泡高度
+                
+                if (x + bubbleWidth > excelContainer.clientWidth) {
+                    x = cellRect.left - containerRect.left - bubbleWidth - 10; // 移到左侧
+                }
+                if (y < 0) {
+                    y = cellRect.bottom - containerRect.top + 5; // 移到下方
+                    // 调整箭头指向
+                    this.collaborationBubble.style.setProperty('--arrow-direction', 'up');
+                } else {
+                    this.collaborationBubble.style.setProperty('--arrow-direction', 'down');
+                }
+                
+                // 设置位置
+                this.collaborationBubble.style.left = x + 'px';
+                this.collaborationBubble.style.top = y + 'px';
+                
+                // 更新状态
+                this.updateBubbleStatus(status);
+                
+                // 显示气泡
+                this.collaborationBubble.classList.add('active');
+                this.collaborationBubble.classList.add('floating');
+            }
+            
+            updateBubbleStatus(status) {
+                const statusDot = this.collaborationBubble.querySelector('.bubble-status');
+                statusDot.className = `bubble-status ${status}`;
+            }
+            
+            hideBubble() {
+                if (this.collaborationBubble) {
+                    this.collaborationBubble.classList.remove('active');
+                    this.collaborationBubble.classList.remove('floating');
+                }
+            }
+            
+            async typeInCell(cell, text) {
+                if (!cell || !text) return;
+                
+                // 检查并防止重复动画
+                const cellKey = cell.cellIndex + '_' + cell.parentNode.rowIndex;
+                if (this.animatingCells.has(cellKey)) {
+                    console.warn('Cell is already animating, skipping...');
+                    return;
+                }
+                
+                // 强制清理该单元格的所有残留
+                this.forceClearCell(cell);
+                
+                // 清空单元格内容 - 这行很重要！
+                cell.innerHTML = '';
+                
+                // 标记单元格为动画中
+                this.animatingCells.add(cellKey);
+                
+                // 更新气泡状态为输入中
+                this.updateBubbleStatus('typing');
+                
+                return new Promise((resolve) => {
+                    let i = 0;
+                    const cursor = document.createElement('span');
+                    cursor.className = 'typing-cursor';
+                    
+                    const typeChar = () => {
+                        // 检查动画是否应该继续
+                        if (!this.isActive || !this.animatingCells.has(cellKey)) {
+                            cursor.remove();
+                            this.animatingCells.delete(cellKey);
+                            resolve();
+                            return;
+                        }
+                        
+                        if (i < text.length) {
+                            cell.textContent += text.charAt(i);
+                            // 移除旧光标再添加新光标
+                            const oldCursors = cell.querySelectorAll('.typing-cursor');
+                            oldCursors.forEach(c => c.remove());
+                            cell.appendChild(cursor);
+                            i++;
+                            
+                            // 记录setTimeout ID
+                            const timeoutId = setTimeout(typeChar, 100);
+                            this.activeTimeouts.add(timeoutId);
+                        } else {
+                            cursor.remove();
+                            this.animatingCells.delete(cellKey);
+                            this.updateBubbleStatus('selecting');
+                            resolve();
+                        }
+                    };
+                    
+                    cell.appendChild(cursor);
+                    const initialTimeoutId = setTimeout(typeChar, 200);
+                    this.activeTimeouts.add(initialTimeoutId);
+                });
+            }
+            
+            async editNumberInCell(cell, newValue) {
+                if (!cell || !newValue) return;
+                
+                // 检查并防止重复动画
+                const cellKey = cell.cellIndex + '_' + cell.parentNode.rowIndex;
+                if (this.animatingCells.has(cellKey)) {
+                    console.warn('Cell is already animating, skipping...');
+                    return;
+                }
+                
+                // 强制清理该单元格的所有残留
+                this.forceClearCell(cell);
+                
+                // 标记单元格为动画中
+                this.animatingCells.add(cellKey);
+                
+                return new Promise((resolve) => {
+                    // 将数字转换为千分位格式
+                    const formattedValue = parseInt(newValue).toLocaleString();
+                    
+                    // 更新气泡状态为选择中
+                    this.updateBubbleStatus('selecting');
+                    
+                    // 第一阶段：全选效果（模拟Ctrl+A）
+                    cell.style.backgroundColor = '#0078d4';
+                    cell.style.color = 'white';
+                    
+                    const selectTimeoutId = setTimeout(() => {
+                        // 检查动画是否应该继续
+                        if (!this.isActive || !this.animatingCells.has(cellKey)) {
+                            this.resetCellStyle(cell);
+                            this.animatingCells.delete(cellKey);
+                            resolve();
+                            return;
+                        }
+                        
+                        // 第二阶段：删除内容（模拟Delete键）
+                        cell.textContent = '';
+                        this.resetCellStyle(cell);
+                        
+                        // 更新气泡状态为输入中
+                        this.updateBubbleStatus('typing');
+                        
+                        // 第三阶段：逐位输入新数字（包括逗号）
+                        let i = 0;
+                        const cursor = document.createElement('span');
+                        cursor.className = 'typing-cursor';
+                        
+                        const typeDigit = () => {
+                            // 检查动画是否应该继续
+                            if (!this.isActive || !this.animatingCells.has(cellKey)) {
+                                cursor.remove();
+                                this.animatingCells.delete(cellKey);
+                                resolve();
+                                return;
+                            }
+                            
+                            if (i < formattedValue.length) {
+                                cell.textContent += formattedValue.charAt(i);
+                                // 移除旧光标再添加新光标
+                                const oldCursors = cell.querySelectorAll('.typing-cursor');
+                                oldCursors.forEach(c => c.remove());
+                                cell.appendChild(cursor);
+                                i++;
+                                
+                                const digitTimeoutId = setTimeout(typeDigit, 150);
+                                this.activeTimeouts.add(digitTimeoutId);
+                            } else {
+                                cursor.remove();
+                                this.animatingCells.delete(cellKey);
+                                this.updateBubbleStatus('selecting');
+                                resolve();
+                            }
+                        };
+                        
+                        cell.appendChild(cursor);
+                        const initialDigitTimeoutId = setTimeout(typeDigit, 300);
+                        this.activeTimeouts.add(initialDigitTimeoutId);
+                        
+                    }, 500);
+                    
+                    this.activeTimeouts.add(selectTimeoutId);
+                });
+            }
+            
+            clearAllAnimations() {
+                // 清除所有动画效果
+                document.querySelectorAll('.cell-editing').forEach(cell => {
+                    cell.classList.remove('cell-editing');
+                    this.resetCellStyle(cell);
+                });
+                
+                // 强制清理所有单元格
+                document.querySelectorAll('td').forEach(cell => {
+                    this.forceClearCell(cell);
+                });
+                
+                // 重置状态
+                this.animatingCells.clear();
+            }
+            
+            forceClearCell(cell) {
+                // 移除所有光标元素
+                const cursors = cell.querySelectorAll('.typing-cursor');
+                cursors.forEach(cursor => cursor.remove());
+                
+                // 重置样式
+                this.resetCellStyle(cell);
+            }
+            
+            resetCellStyle(cell) {
+                cell.style.backgroundColor = '';
+                cell.style.color = '';
+            }
+        }
+        
+        // ===== Word协作动画系统 =====
+        class WordCollaborationAnimator {
+            constructor() {
+                this.isActive = false;
+                this.animationInterval = null;
+                this.currentStep = 0;
+                this.collaborationBubble = null;
+                
+                // 状态管理
+                this.activeTimeouts = new Set();
+                this.isAnimationRunning = false;
+                this.currentBulletIndex = 0;
+                
+                // 要插入的bullet point内容
+                this.bulletPoints = [
+                    'Interactive Elements: Users increasingly prefer templates with interactive features like clickable charts and embedded forms',
+                    'Mobile Optimization: 76% of users access presentations on mobile devices, requiring responsive template designs',
+                    'Brand Consistency: Companies seek templates that can easily incorporate their brand colors and logos while maintaining professional aesthetics'
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                const toggleBtn = document.getElementById('word-collab-toggle');
+                const wordContainer = document.querySelector('.word-container');
+                
+                // 创建协作气泡
+                this.createCollaborationBubble();
+                
+                // 切换按钮事件
+                toggleBtn.addEventListener('click', () => {
+                    this.toggle();
+                });
+            }
+            
+            createCollaborationBubble() {
+                const wordContainer = document.querySelector('.word-container');
+                
+                this.collaborationBubble = document.createElement('div');
+                this.collaborationBubble.className = 'word-collaboration-bubble';
+                this.collaborationBubble.innerHTML = `
+                    <div class="bubble-avatar">Y</div>
+                    <span class="bubble-name">Yuecong</span>
+                    <div class="bubble-status selecting"></div>
+                `;
+                
+                wordContainer.appendChild(this.collaborationBubble);
+            }
+            
+            toggle() {
+                const toggleBtn = document.getElementById('word-collab-toggle');
+                
+                this.isActive = !this.isActive;
+                
+                if (this.isActive) {
+                    toggleBtn.classList.add('active');
+                    this.startAnimation();
+                } else {
+                    toggleBtn.classList.remove('active');
+                    this.stopAnimation();
+                    this.hideBubble();
+                }
+            }
+            
+            startAnimation() {
+                if (this.animationInterval) return;
+                
+                this.currentBulletIndex = 0;
+                this.runAnimationSequence();
+            }
+            
+            stopAnimation() {
+                if (this.animationInterval) {
+                    clearTimeout(this.animationInterval);
+                    this.animationInterval = null;
+                }
+                
+                // 清理所有活动的timeout
+                this.activeTimeouts.forEach(timeoutId => {
+                    clearTimeout(timeoutId);
+                });
+                this.activeTimeouts.clear();
+                
+                // 重置状态
+                this.isAnimationRunning = false;
+                
+                // 清理动画效果
+                this.clearAllAnimations();
+            }
+            
+            runAnimationSequence() {
+                if (!this.isActive || this.isAnimationRunning) return;
+                
+                this.isAnimationRunning = true;
+                
+                if (this.currentBulletIndex >= this.bulletPoints.length) {
+                    // 循环重置：清空之前添加的bullet points
+                    this.clearAddedBulletPoints();
+                    this.currentBulletIndex = 0;
+                    this.isAnimationRunning = false;
+                    // 清空后稍等一下再开始下一轮
+                    this.animationInterval = setTimeout(() => this.runAnimationSequence(), 3000);
+                    return;
+                }
+                
+                this.insertBulletPoint(this.currentBulletIndex).then(() => {
+                    this.currentBulletIndex++;
+                    this.isAnimationRunning = false;
+                    // 短暂停顿后继续下一个bullet point
+                    this.animationInterval = setTimeout(() => this.runAnimationSequence(), 2000);
+                }).catch(() => {
+                    this.isAnimationRunning = false;
+                    this.currentBulletIndex = 0;
+                });
+            }
+            
+            async insertBulletPoint(index) {
+                const keyFindingsList = document.querySelector('.word-list');
+                if (!keyFindingsList) return;
+                
+                const bulletText = this.bulletPoints[index];
+                
+                // 创建新的li元素并添加标记
+                const newBullet = document.createElement('li');
+                newBullet.classList.add('yuecong-added-bullet'); // 添加标记类
+                
+                // 插入到第一个li之后
+                const firstBullet = keyFindingsList.querySelector('li');
+                if (firstBullet && firstBullet.nextSibling) {
+                    keyFindingsList.insertBefore(newBullet, firstBullet.nextSibling);
+                } else {
+                    keyFindingsList.appendChild(newBullet);
+                }
+                
+                // 显示气泡并定位到新bullet point
+                this.showBubbleAtElement(newBullet, 'typing');
+                
+                // 逐字输入文本
+                await this.typeInElement(newBullet, bulletText);
+                
+                // 输入完成后更新状态
+                this.updateBubbleStatus('selecting');
+                
+                // 短暂停顿
+                await this.delay(800);
+            }
+            
+            async typeInElement(element, text) {
+                return new Promise((resolve) => {
+                    let i = 0;
+                    const cursor = document.createElement('span');
+                    cursor.className = 'typing-cursor';
+                    cursor.style.animation = 'cursor-blink 1s infinite';
+                    
+                    const typeChar = () => {
+                        if (!this.isActive) {
+                            cursor.remove();
+                            resolve();
+                            return;
+                        }
+                        
+                        if (i < text.length) {
+                            // 移除光标，添加字符，重新添加光标
+                            cursor.remove();
+                            element.textContent += text.charAt(i);
+                            element.appendChild(cursor);
+                            i++;
+                            
+                            const timeoutId = setTimeout(typeChar, 50); // 快速输入
+                            this.activeTimeouts.add(timeoutId);
+                        } else {
+                            cursor.remove();
+                            resolve();
+                        }
+                    };
+                    
+                    // 添加光标开始输入
+                    element.appendChild(cursor);
+                    const initialTimeoutId = setTimeout(typeChar, 200);
+                    this.activeTimeouts.add(initialTimeoutId);
+                });
+            }
+            
+            showBubbleAtElement(targetElement, status = 'selecting') {
+                if (!targetElement || !this.collaborationBubble) return;
+                
+                const wordContainer = document.querySelector('.word-container');
+                const elementRect = targetElement.getBoundingClientRect();
+                const containerRect = wordContainer.getBoundingClientRect();
+                
+                // 将气泡放在元素上方，水平居左对齐
+                const bubbleWidth = 100;
+                const bubbleHeight = 32;
+                
+                // 计算水平位置（左对齐到bullet point的左边缘）
+                let x = elementRect.left - containerRect.left;
+                
+                // 计算垂直位置（在元素上方）
+                let y = elementRect.top - containerRect.top - bubbleHeight - 10;
+                
+                // 边界检测和调整
+                // 确保气泡不超出容器左边界
+                if (x < 10) {
+                    x = 10;
+                }
+                // 确保气泡不超出容器右边界
+                if (x + bubbleWidth > wordContainer.clientWidth - 10) {
+                    x = wordContainer.clientWidth - bubbleWidth - 10;
+                }
+                
+                // 如果上方空间不够，放到下方
+                if (y < 10) {
+                    y = elementRect.bottom - containerRect.top + 10;
+                    // 调整箭头指向（上方）
+                    this.collaborationBubble.style.setProperty('--arrow-direction', 'up');
+                } else {
+                    // 设置箭头指向（下方）
+                    this.collaborationBubble.style.setProperty('--arrow-direction', 'down');
+                }
+                
+                // 设置位置
+                this.collaborationBubble.style.left = x + 'px';
+                this.collaborationBubble.style.top = y + 'px';
+                
+                // 更新状态
+                this.updateBubbleStatus(status);
+                
+                // 显示气泡
+                this.collaborationBubble.classList.add('active');
+                this.collaborationBubble.classList.add('floating');
+            }
+            
+            updateBubbleStatus(status) {
+                const statusDot = this.collaborationBubble.querySelector('.bubble-status');
+                statusDot.className = `bubble-status ${status}`;
+            }
+            
+            hideBubble() {
+                if (this.collaborationBubble) {
+                    this.collaborationBubble.classList.remove('active');
+                    this.collaborationBubble.classList.remove('floating');
+                }
+            }
+            
+            clearAddedBulletPoints() {
+                // 移除所有Yuecong添加的bullet points
+                const addedBullets = document.querySelectorAll('.yuecong-added-bullet');
+                addedBullets.forEach(bullet => {
+                    bullet.remove();
+                });
+            }
+            
+            clearAllAnimations() {
+                // 移除所有光标
+                document.querySelectorAll('.typing-cursor').forEach(cursor => {
+                    cursor.remove();
+                });
+                
+                // 同时清空添加的bullet points（停止动画时）
+                this.clearAddedBulletPoints();
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => {
+                    const timeoutId = setTimeout(resolve, ms);
+                    this.activeTimeouts.add(timeoutId);
+                });
+            }
+        }
+        
+        // ===== Claude AI协作动画系统 =====
+        class ClaudeAIAnimator {
+            constructor() {
+                this.isActive = true; // 默认动画为打开状态
+                this.animationInterval = null;
+                this.currentStep = 0;
+                this.collaborationBubble = null;
+                this.hasPlayedOnce = false; // 新增：标记是否已经播放过一次
+                
+                // 状态管理
+                this.activeTimeouts = new Set();
+                this.isAnimationRunning = false;
+                this.currentContent = '';
+                this.targetContainer = null;
+                this.lastScrollHeight = 0; // 记录上次滚动高度，防止重复滚动
+                
+                // AI思考阶段内容
+                this.thinkingSteps = [
+                    '正在分析用户需求...',
+                    '设计页面布局和结构...',
+                    '编写HTML标签...',
+                    '添加CSS样式...',
+                    '优化用户体验...',
+                    '最终检查和完善...'
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                const claudeContainer = document.querySelector('.claude-output-container');
+                
+                // 创建协作气泡
+                this.createCollaborationBubble();
+                
+                // 设置全局动画控制
+                this.setupGlobalAnimationControl();
+                
+                // 动画默认开启，无需切换按钮
+                console.log('Claude动画系统已初始化，默认开启');
+            }
+            
+            setupGlobalAnimationControl() {
+                const globalToggle = document.getElementById('globalAnimationToggle');
+                if (globalToggle) {
+                    globalToggle.addEventListener('click', () => {
+                        this.isActive = !this.isActive;
+                        globalToggle.classList.toggle('active', this.isActive);
+                        
+                        // 更新图标和标签
+                        const control = globalToggle.closest('.global-animation-control');
+                        const icon = control.querySelector('.icon');
+                        const label = control.querySelector('.label');
+                        
+                        if (this.isActive) {
+                            icon.className = 'fas fa-play icon';
+                            label.textContent = 'Claude动画';
+                            console.log('Claude动画已开启');
+                        } else {
+                            icon.className = 'fas fa-pause icon';
+                            label.textContent = 'Claude动画';
+                            this.stopAnimation();
+                            this.hideBubble();
+                            console.log('Claude动画已关闭');
+                        }
+                    });
+                }
+            }
+            
+            createCollaborationBubble() {
+                const claudeContainer = document.querySelector('.claude-output-container');
+                
+                this.collaborationBubble = document.createElement('div');
+                this.collaborationBubble.className = 'claude-collaboration-bubble';
+                this.collaborationBubble.innerHTML = `
+                    <div class="bubble-avatar">C</div>
+                    <span class="bubble-name">Claude</span>
+                    <div class="bubble-status selecting"></div>
+                `;
+                
+                claudeContainer.appendChild(this.collaborationBubble);
+            }
+            
+            toggle() {
+                this.isActive = !this.isActive;
+                
+                if (this.isActive) {
+                    console.log('Claude动画已启用');
+                    this.startAnimation();
+                } else {
+                    console.log('Claude动画已停用');
+                    this.stopAnimation();
+                    this.hideBubble();
+                }
+            }
+            
+            startAnimation() {
+                if (this.animationInterval) return;
+                
+                // 如果已经播放过一次，则不再自动播放
+                if (this.hasPlayedOnce) {
+                    console.log('Claude动画已播放过，等待新内容或手动触发...');
+                    return;
+                }
+                
+                // 检查是否有内容可以渲染
+                const contentContainer = document.getElementById('claudeOutputContent');
+                const iframe = contentContainer.querySelector('iframe');
+                
+                if (iframe && iframe.srcdoc) {
+                    this.currentContent = iframe.srcdoc;
+                    this.targetContainer = iframe;
+                    this.runProgressiveRendering();
+                } else {
+                    // 如果没有内容，显示思考过程
+                    this.runThinkingAnimation();
+                }
+            }
+            
+            stopAnimation() {
+                if (this.animationInterval) {
+                    clearTimeout(this.animationInterval);
+                    this.animationInterval = null;
+                }
+                
+                // 清理所有活动的timeout
+                this.activeTimeouts.forEach(timeoutId => {
+                    clearTimeout(timeoutId);
+                });
+                this.activeTimeouts.clear();
+                
+                // 重置状态
+                this.isAnimationRunning = false;
+                this.lastScrollHeight = 0; // 重置滚动高度记录
+                
+                // 如果正在渐进式渲染，恢复完整内容
+                if (this.targetContainer && this.currentContent) {
+                    this.targetContainer.srcdoc = this.currentContent;
+                }
+            }
+            
+            // 重置动画状态，允许重新播放
+            resetForNewContent() {
+                this.hasPlayedOnce = false;
+                this.stopAnimation();
+                console.log('Claude动画状态已重置，准备播放新内容...');
+            }
+            
+            // 启动新内容的渐进式渲染
+            startProgressiveRendering(newContent) {
+                // 检查全局动画开关是否开启
+                if (!this.isActive) {
+                    console.log('Claude动画已关闭，直接显示内容...');
+                    this.showContentDirectly(newContent);
+                    return;
+                }
+                
+                // 检查是否是真正的新内容
+                if (this.currentContent === newContent && this.hasPlayedOnce) {
+                    console.log('内容未变化且已播放过，跳过动画...');
+                    return;
+                }
+                
+                // 只有内容改变时才重置状态
+                if (this.currentContent !== newContent) {
+                    console.log('检测到新内容，重置动画状态...');
+                    this.currentContent = newContent;
+                    this.resetForNewContent();
+                } else if (this.hasPlayedOnce) {
+                    console.log('相同内容已播放过，跳过动画...');
+                    return;
+                }
+                
+                // 查找目标容器
+                const contentContainer = document.getElementById('claudeOutputContent');
+                const iframe = contentContainer.querySelector('iframe');
+                if (iframe) {
+                    this.targetContainer = iframe;
+                    this.runProgressiveRendering();
+                }
+            }
+            
+            // 直接显示内容（不播放动画）
+            showContentDirectly(content) {
+                const contentContainer = document.getElementById('claudeOutputContent');
+                const iframe = contentContainer.querySelector('iframe');
+                if (iframe) {
+                    iframe.srcdoc = content;
+                    console.log('内容已直接显示，无动画效果');
+                }
+            }
+            
+            async runThinkingAnimation() {
+                if (!this.isActive) return;
+                
+                for (let i = 0; i < this.thinkingSteps.length; i++) {
+                    if (!this.isActive) break;
+                    
+                    // 显示思考气泡
+                    this.showThinkingBubble(this.thinkingSteps[i]);
+                    
+                    // 等待一段时间
+                    await this.delay(2000);
+                }
+                
+                // 思考完成后隐藏气泡，不再循环
+                if (this.isActive) {
+                    await this.delay(1000);
+                    this.hideBubble();
+                    this.hasPlayedOnce = true; // 标记已播放完成
+                    console.log('Claude思考动画播放完成');
+                }
+            }
+            
+            async runProgressiveRendering() {
+                if (!this.isActive || !this.currentContent) return;
+                
+                this.isAnimationRunning = true;
+                
+                // 显示创作气泡
+                this.showCreationBubble();
+                
+                // 使用预渲染方案：完整内容预渲染 + CSS控制显示
+                await this.runPreRenderedAnimation();
+                
+                this.isAnimationRunning = false;
+                
+                // 完成后显示完成状态
+                this.showCompletionBubble();
+                
+                // 标记已播放完成
+                this.hasPlayedOnce = true;
+                
+                // 动画播放完毕，保持完成状态，不再循环
+                console.log('Claude动画播放完成，等待新内容...');
+            }
+            
+            // ===== 方案4改进版：全透明渲染 + 逐步显示 =====
+            
+            // 主要的预渲染动画执行器（方案A版本）
+            async runPreRenderedAnimation() {
+                console.log('开始预渲染动画（方案A）...');
+                
+                // 第一步：预处理HTML，在每个元素上添加内联透明样式
+                const fullContent = this.currentContent;
+                const transparentContent = this.injectTransparencyStyles(fullContent);
+                
+                console.log('设置预处理后的内容到iframe...');
+                this.targetContainer.srcdoc = transparentContent;
+                
+                // 第二步：等待iframe加载完成
+                await this.waitForIframeLoad();
+                
+                console.log('iframe加载完成，页面应该已经是透明状态');
+                
+                // 第三步：验证透明状态
+                try {
+                    const iframeDoc = this.targetContainer.contentDocument;
+                    const firstElement = iframeDoc.querySelector('div, p, h1, h2, h3');
+                    if (firstElement) {
+                        const opacity = window.getComputedStyle(firstElement).opacity;
+                        console.log('验证：第一个元素的透明度为:', opacity);
+                    }
+                } catch (e) {
+                    console.log('验证透明状态时出错:', e);
+                }
+                
+                // 第四步：创建显示计划
+                const displayPlan = this.createElementDisplayPlan();
+                
+                console.log('显示计划创建完成，元素数量:', displayPlan.length);
+                
+                if (displayPlan.length === 0) {
+                    console.log('警告：没有找到任何需要显示的元素！');
+                    return;
+                }
+                
+                // 第五步：逐步显示元素
+                await this.executeElementDisplay(displayPlan);
+            }
+            
+            // 在HTML内容中注入透明样式（方案A：预处理HTML版本）
+            injectTransparencyStyles(htmlContent) {
+                console.log('开始HTML预处理，直接在元素上添加内联样式...');
+                
+                // 第一步：添加基础CSS
+                const basicCSS = `
+<style id="claude-transparency-styles">
+/* 基础过渡样式 */
+body {
+    opacity: 1 !important;
+    background: white !important;
+}
+
+/* 避免影响特殊元素 */
+script, style, meta, link, title, noscript, head {
+    opacity: 1 !important;
+}
+</style>`;
+
+                // 第二步：预处理HTML，给每个可见元素添加内联透明样式
+                let processedHTML = this.addInlineTransparencyToHTML(htmlContent);
+                
+                // 第三步：注入基础CSS
+                if (processedHTML.includes('<head>')) {
+                    processedHTML = processedHTML.replace('<head>', '<head>' + basicCSS);
+                } else if (processedHTML.includes('<html')) {
+                    processedHTML = processedHTML.replace(/(<html[^>]*>)/i, '$1' + basicCSS);
+                } else {
+                    processedHTML = basicCSS + processedHTML;
+                }
+                
+                console.log('HTML预处理完成');
+                return processedHTML;
+            }
+            
+            // 核心方法：在HTML字符串中给每个元素添加内联透明样式
+            addInlineTransparencyToHTML(htmlContent) {
+                console.log('正在解析HTML并添加内联样式...');
+                
+                // 要处理的HTML标签（排除特殊标签）
+                const tagsToProcess = [
+                    'div', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                    'a', 'li', 'ul', 'ol', 'td', 'th', 'tr', 'table',
+                    'img', 'svg', 'canvas', 'figure', 'figcaption',
+                    'input', 'textarea', 'select', 'button',
+                    'strong', 'em', 'code', 'pre', 'blockquote',
+                    'section', 'article', 'header', 'footer', 'nav', 'main', 'aside'
+                ];
+                
+                let processedHTML = htmlContent;
+                let processedCount = 0;
+                
+                // 遍历每种标签类型
+                tagsToProcess.forEach(tag => {
+                    // 匹配开始标签的正则表达式
+                    const tagRegex = new RegExp(`<${tag}([^>]*)>`, 'gi');
+                    
+                    processedHTML = processedHTML.replace(tagRegex, (match, attributes) => {
+                        processedCount++;
+                        
+                        // 检查是否已经有style属性
+                        if (attributes.includes('style=')) {
+                            // 如果已有style，在现有样式后添加透明度
+                            return match.replace(/style=["']([^"']*)["']/i, (styleMatch, existingStyles) => {
+                                const transparencyStyle = 'opacity:0;transition:opacity 0.8s ease-in-out;';
+                                return `style="${existingStyles};${transparencyStyle}"`;
+                            });
+                        } else {
+                            // 如果没有style，添加新的style属性
+                            const transparencyStyle = ` style="opacity:0;transition:opacity 0.8s ease-in-out;"`;
+                            return `<${tag}${attributes}${transparencyStyle}>`;
+                        }
+                    });
+                });
+                
+                console.log(`已为 ${processedCount} 个元素添加内联透明样式`);
+                return processedHTML;
+            }
+            
+            // 直接设置所有元素为透明
+            async setAllElementsTransparent() {
+                try {
+                    const iframe = this.targetContainer;
+                    if (!iframe || !iframe.contentWindow) return;
+                    
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (!iframeDoc) return;
+                    
+                    // 获取所有元素
+                    const allElements = iframeDoc.querySelectorAll('*');
+                    let count = 0;
+                    
+                    allElements.forEach(element => {
+                        const tagName = element.tagName.toLowerCase();
+                        
+                        // 跳过不需要处理的元素
+                        if (['script', 'style', 'meta', 'link', 'title', 'noscript', 'head', 'html', 'body'].includes(tagName)) {
+                            return;
+                        }
+                        
+                        // 直接设置内联样式
+                        element.style.opacity = '0';
+                        element.style.transition = 'opacity 0.8s ease-in-out';
+                        element.classList.add('claude-element-transition');
+                        count++;
+                    });
+                    
+                    console.log(`已设置 ${count} 个元素为透明状态`);
+                    
+                    // 等待一下确保样式应用
+                    await this.delay(200);
+                    
+                } catch (error) {
+                    console.log('设置元素透明时出错:', error);
+                }
+            }
+            
+            // 创建元素显示计划（叶子节点优先版本）
+            createElementDisplayPlan() {
+                try {
+                    const iframe = this.targetContainer;
+                    if (!iframe || !iframe.contentWindow) return [];
+                    
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (!iframeDoc) return [];
+                    
+                    // 获取所有元素
+                    const allElements = iframeDoc.querySelectorAll('*');
+                    const plan = [];
+                    
+                    allElements.forEach((element, index) => {
+                        const tagName = element.tagName.toLowerCase();
+                        
+                        // 跳过不需要显示的元素
+                        if (['script', 'style', 'meta', 'link', 'title', 'noscript', 'head', 'html', 'body'].includes(tagName)) {
+                            return;
+                        }
+                        
+                        // 只选择叶子节点（没有子元素）或者包含直接文本的元素
+                        const isLeafNode = element.children.length === 0;
+                        const hasDirectText = this.hasDirectText(element);
+                        const isVisualElement = ['IMG', 'SVG', 'CANVAS', 'INPUT', 'BUTTON', 'SELECT', 'TEXTAREA'].includes(element.tagName);
+                        
+                        // 优先选择叶子节点或有直接文本内容的元素
+                        if (isLeafNode || hasDirectText || isVisualElement) {
+                            const hasContent = element.textContent && element.textContent.trim().length > 0;
+                            
+                            if (hasContent || isVisualElement) {
+                                plan.push({
+                                    element: element,
+                                    index: index,
+                                    delay: this.getDelayForElement(element),
+                                    type: this.getElementType(element),
+                                    content: element.textContent ? element.textContent.trim().substring(0, 30) + '...' : element.tagName,
+                                    isLeaf: isLeafNode
+                                });
+                            }
+                        }
+                    });
+                    
+                    // 按DOM顺序排序，叶子节点优先
+                    plan.sort((a, b) => {
+                        if (a.isLeaf !== b.isLeaf) {
+                            return a.isLeaf ? -1 : 1; // 叶子节点优先
+                        }
+                        return a.index - b.index;
+                    });
+                    
+                    console.log(`找到 ${plan.length} 个叶子节点需要渐进显示:`, plan.slice(0, 5).map(p => ({
+                        tag: p.element.tagName,
+                        content: p.content,
+                        isLeaf: p.isLeaf
+                    })));
+                    
+                    return plan;
+                } catch (error) {
+                    console.log('获取元素计划时出错:', error);
+                    return [];
+                }
+            }
+            
+            // 执行元素显示（增加基础延迟让过程更明显）
+            async executeElementDisplay(plan) {
+                for (let i = 0; i < plan.length; i++) {
+                    if (!this.isActive) break;
+                    
+                    const step = plan[i];
+                    
+                    // 显示当前元素
+                    this.showElement(step.element);
+                    
+                    // 平滑滚动到元素位置
+                    this.smoothScrollToElement(step.element);
+                    
+                    // 更新气泡进度
+                    this.updateBubbleProgress(i + 1, plan.length);
+                    this.updateBubblePosition();
+                    
+                    // 减慢显示速度，让过程更明显
+                    const baseDelay = 500; // 增加基础延迟
+                    const elementDelay = Math.min(step.delay, 300); // 减少变动范围
+                    const randomDelay = Math.random() * 300; // 适度随机
+                    const totalDelay = baseDelay + elementDelay + randomDelay;
+                    
+                    await this.delay(totalDelay);
+                }
+            }
+            
+            // 检测元素是否包含直接文本（不包括子元素文本）
+            hasDirectText(element) {
+                for (let node of element.childNodes) {
+                    if (node.nodeType === 3 && node.textContent.trim().length > 0) { // TEXT_NODE = 3
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            // 显示特定元素（方案A版本 - 覆盖内联样式）
+            showElement(element) {
+                try {
+                    if (element) {
+                        console.log('正在显示元素:', element.tagName, element.textContent?.substring(0, 20));
+                        
+                        // 首先确保所有父容器都是可见的
+                        let parent = element.parentElement;
+                        while (parent && parent !== this.targetContainer.contentDocument.body && parent !== this.targetContainer.contentDocument.documentElement) {
+                            if (parent.style.opacity === '0' || parent.style.opacity === '') {
+                                console.log('正在显示父容器:', parent.tagName);
+                                parent.style.opacity = '1';
+                                // 父容器使用更快的过渡
+                                if (!parent.style.transition.includes('opacity')) {
+                                    parent.style.transition = 'opacity 0.2s ease-in-out';
+                                }
+                            }
+                            parent = parent.parentElement;
+                        }
+                        
+                        // 然后显示目标元素
+                        element.style.opacity = '1';
+                        
+                        // 确保过渡效果
+                        if (!element.style.transition.includes('opacity')) {
+                            element.style.transition = 'opacity 0.8s ease-in-out';
+                        }
+                        
+                        // 验证设置是否成功
+                        setTimeout(() => {
+                            const currentOpacity = element.style.opacity;
+                            console.log(`元素 ${element.tagName} 显示后透明度:`, currentOpacity);
+                        }, 100);
+                    }
+                } catch (error) {
+                    console.log('显示元素时出错:', error);
+                }
+            }
+            
+            // 平滑滚动到元素
+            smoothScrollToElement(element) {
+                try {
+                    const iframe = this.targetContainer;
+                    if (!iframe || !iframe.contentWindow || !element) return;
+                    
+                    const iframeWindow = iframe.contentWindow;
+                    const elementTop = element.offsetTop;
+                    const viewportHeight = iframeWindow.innerHeight || 400;
+                    
+                    // 智能滚动：将元素滚动到视窗的1/3位置
+                    const targetScroll = Math.max(0, elementTop - viewportHeight / 3);
+                    
+                    iframeWindow.scrollTo({
+                        top: targetScroll,
+                        behavior: 'smooth'
+                    });
+                } catch (error) {
+                    // 忽略跨域错误
+                }
+            }
+            
+            // 根据元素类型获取延迟时间（为细粒度显示优化）
+            getDelayForElement(element) {
+                const tagName = element.tagName.toLowerCase();
+                const delays = {
+                    'h1': 400, 'h2': 350, 'h3': 300, 'h4': 250, 'h5': 200, 'h6': 150,
+                    'p': 300,
+                    'div': 200,
+                    'span': 150,
+                    'strong': 150,
+                    'em': 150,
+                    'a': 150,
+                    'li': 200,
+                    'ul': 300, 'ol': 300,
+                    'blockquote': 400,
+                    'pre': 500,
+                    'code': 200,
+                    'img': 300,
+                    'svg': 250,
+                    'canvas': 300,
+                    'table': 400,
+                    'tr': 200,
+                    'td': 150, 'th': 150,
+                    'section': 300,
+                    'article': 350,
+                    'input': 200,
+                    'button': 200,
+                    'textarea': 250,
+                    'select': 200
+                };
+                return delays[tagName] || 200;
+            }
+            
+            // 获取元素类型
+            getElementType(element) {
+                const tagName = element.tagName.toLowerCase();
+                if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
+                    return 'heading';
+                } else if (tagName === 'p') {
+                    return 'paragraph';
+                } else if (['ul', 'ol'].includes(tagName)) {
+                    return 'list';
+                } else if (tagName === 'img') {
+                    return 'image';
+                } else if (['pre', 'code'].includes(tagName)) {
+                    return 'code';
+                } else {
+                    return 'content';
+                }
+            }
+            parseHTMLIntoChunks(htmlContent) {
+                // 智能分割HTML内容
+                const chunks = [];
+                
+                // 首先添加DOCTYPE和html开始标签
+                if (htmlContent.includes('<!DOCTYPE')) {
+                    chunks.push('<!DOCTYPE html>');
+                    htmlContent = htmlContent.replace('<!DOCTYPE html>', '');
+                }
+                
+                // 分割主要HTML标签
+                const majorTags = ['<html', '<head', '<style', '<body', '<header', '<nav', '<main', '<section', '<article', '<div', '<footer'];
+                
+                let currentPos = 0;
+                let currentChunk = '';
+                
+                while (currentPos < htmlContent.length) {
+                    let nextTagPos = htmlContent.length;
+                    let foundTag = null;
+                    
+                    // 找到下一个主要标签的位置
+                    for (const tag of majorTags) {
+                        const pos = htmlContent.indexOf(tag, currentPos);
+                        if (pos !== -1 && pos < nextTagPos) {
+                            nextTagPos = pos;
+                            foundTag = tag;
+                        }
+                    }
+                    
+                    // 如果找到了标签，分割内容
+                    if (foundTag && nextTagPos > currentPos) {
+                        currentChunk += htmlContent.substring(currentPos, nextTagPos);
+                        if (currentChunk.trim()) {
+                            chunks.push(currentChunk);
+                        }
+                        
+                        // 找到完整的标签（包括结束标签）
+                        const tagEnd = this.findCompleteTag(htmlContent, nextTagPos);
+                        currentChunk = htmlContent.substring(nextTagPos, tagEnd);
+                        currentPos = tagEnd;
+                    } else {
+                        // 没有更多标签，添加剩余内容
+                        currentChunk += htmlContent.substring(currentPos);
+                        break;
+                    }
+                }
+                
+                if (currentChunk.trim()) {
+                    chunks.push(currentChunk);
+                }
+                
+                // 确保至少有一些chunk
+                if (chunks.length === 0) {
+                    const lines = htmlContent.split('\n');
+                    for (let i = 0; i < lines.length; i += 3) {
+                        chunks.push(lines.slice(i, i + 3).join('\n'));
+                    }
+                }
+                
+                return chunks.filter(chunk => chunk.trim());
+            }
+            
+            findCompleteTag(html, startPos) {
+                // 简化实现：找到下一个>位置
+                const closePos = html.indexOf('>', startPos);
+                return closePos !== -1 ? closePos + 1 : startPos + 50;
+            }
+            
+            showThinkingBubble(message) {
+                if (!this.collaborationBubble) return;
+                
+                // 更新气泡内容
+                const nameSpan = this.collaborationBubble.querySelector('.bubble-name');
+                nameSpan.textContent = message;
+                
+                // 显示在Claude容器右上角
+                this.positionBubbleAtContainer();
+                this.updateBubbleStatus('thinking');
+                this.collaborationBubble.classList.add('active', 'floating');
+            }
+            
+            showCreationBubble() {
+                if (!this.collaborationBubble) return;
+                
+                const nameSpan = this.collaborationBubble.querySelector('.bubble-name');
+                nameSpan.textContent = '正在创建网页...';
+                
+                this.positionBubbleAtContainer();
+                this.updateBubbleStatus('typing');
+                this.collaborationBubble.classList.add('active', 'floating');
+            }
+            
+            updateBubbleProgress(current, total) {
+                if (!this.collaborationBubble) return;
+                
+                const nameSpan = this.collaborationBubble.querySelector('.bubble-name');
+                nameSpan.textContent = `渲染进度 ${current}/${total}`;
+            }
+            
+            showCompletionBubble() {
+                if (!this.collaborationBubble) return;
+                
+                const nameSpan = this.collaborationBubble.querySelector('.bubble-name');
+                nameSpan.textContent = '网页创建完成！';
+                
+                this.updateBubbleStatus('selecting');
+            }
+            
+            positionBubbleAtContainer() {
+                if (!this.collaborationBubble) return;
+                
+                const claudeContainer = document.querySelector('.claude-output-container');
+                const containerRect = claudeContainer.getBoundingClientRect();
+                
+                // 定位在容器右上角内部
+                const bubbleWidth = 200;
+                const x = claudeContainer.clientWidth - bubbleWidth - 20;
+                const y = 80; // 工具栏下方
+                
+                this.collaborationBubble.style.left = x + 'px';
+                this.collaborationBubble.style.top = y + 'px';
+                this.collaborationBubble.style.setProperty('--arrow-direction', 'down');
+            }
+            
+            updateBubbleStatus(status) {
+                const statusDot = this.collaborationBubble.querySelector('.bubble-status');
+                statusDot.className = `bubble-status ${status}`;
+            }
+            
+            hideBubble() {
+                if (this.collaborationBubble) {
+                    this.collaborationBubble.classList.remove('active', 'floating');
+                }
+            }
+            
+            // 等待iframe内容加载完成
+            async waitForIframeLoad() {
+                return new Promise(resolve => {
+                    // 增加延迟，确保iframe内容完全加载并渲染
+                    setTimeout(resolve, 500);
+                });
+            }
+            
+            // 自动滚动到新生成的内容（智能防抖动版本）
+            scrollToNewContent() {
+                try {
+                    const iframe = this.targetContainer;
+                    if (!iframe || !iframe.contentWindow) return;
+                    
+                    const iframeWindow = iframe.contentWindow;
+                    const iframeDoc = iframe.contentDocument || iframeWindow.document;
+                    
+                    if (!iframeDoc || !iframeDoc.body) return;
+                    
+                    // 获取内容高度信息
+                    const scrollHeight = Math.max(
+                        iframeDoc.documentElement.scrollHeight,
+                        iframeDoc.body.scrollHeight,
+                        iframeDoc.documentElement.offsetHeight,
+                        iframeDoc.body.offsetHeight
+                    );
+                    
+                    const clientHeight = iframeWindow.innerHeight || iframe.clientHeight;
+                    const currentScrollTop = iframeWindow.pageYOffset || iframeDoc.documentElement.scrollTop || iframeDoc.body.scrollTop || 0;
+                    
+                    // 如果内容高度不足一屏，不需要滚动
+                    if (scrollHeight <= clientHeight + 50) return;
+                    
+                    // 记录上次的滚动高度，避免重复滚动
+                    if (!this.lastScrollHeight) {
+                        this.lastScrollHeight = 0;
+                    }
+                    
+                    // 只有当内容高度明显增加时才滚动（防止频繁的小幅滚动）
+                    const heightDelta = scrollHeight - this.lastScrollHeight;
+                    if (heightDelta < 100) return; // 内容增加不足100px时不滚动
+                    
+                    // 计算是否需要滚动：检查用户是否能看到新内容
+                    const viewportBottom = currentScrollTop + clientHeight;
+                    const needScroll = scrollHeight > viewportBottom + 200; // 给200px缓冲区
+                    
+                    if (!needScroll) {
+                        this.lastScrollHeight = scrollHeight;
+                        return;
+                    }
+                    
+                    // 智能滚动策略：基于当前位置平滑向下滚动
+                    const contentRatio = scrollHeight / clientHeight;
+                    let scrollAmount;
+                    
+                    if (contentRatio < 1.5) {
+                        // 内容不多时，小步滚动
+                        scrollAmount = Math.min(heightDelta, clientHeight * 0.3);
+                    } else if (contentRatio < 3) {
+                        // 中等内容，中步滚动
+                        scrollAmount = Math.min(heightDelta, clientHeight * 0.5);
+                    } else {
+                        // 长内容，大步滚动但不超过新增内容
+                        scrollAmount = Math.min(heightDelta * 1.2, clientHeight * 0.7);
+                    }
+                    
+                    const targetScroll = Math.min(
+                        currentScrollTop + scrollAmount,
+                        scrollHeight - clientHeight
+                    );
+                    
+                    // 只有目标位置与当前位置有明显差异时才滚动
+                    if (Math.abs(targetScroll - currentScrollTop) > 50) {
+                        iframeWindow.scrollTo({
+                            top: targetScroll,
+                            behavior: 'smooth'
+                        });
+                    }
+                    
+                    this.lastScrollHeight = scrollHeight;
+                    
+                } catch (error) {
+                    // 忽略跨域或其他滚动错误，这在iframe中是常见的
+                    // console.log('滚动时出现跨域限制，这是正常现象');
+                }
+            }
+            
+            // 更新气泡位置以跟随滚动进度
+            updateBubblePosition() {
+                // 气泡保持在Claude容器的固定位置，不跟随iframe内部滚动
+                // 这样用户始终能看到Claude的创作状态
+                this.positionBubbleAtContainer();
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => {
+                    const timeoutId = setTimeout(resolve, ms);
+                    this.activeTimeouts.add(timeoutId);
+                });
+            }
+            
+            // 公共方法：外部调用以开始渐进式渲染
+            startProgressiveRendering(htmlContent) {
+                // 检查是否有新内容
+                const hasNewContent = this.currentContent !== htmlContent;
+                
+                this.currentContent = htmlContent;
+                const contentContainer = document.getElementById('claudeOutputContent');
+                const iframe = contentContainer.querySelector('iframe');
+                this.targetContainer = iframe;
+                
+                if (this.isActive && hasNewContent) {
+                    console.log('检测到新内容，重启Claude动画...');
+                    // 停止当前动画
+                    this.stopAnimation();
+                    // 重新开始渲染动画
+                    this.runProgressiveRendering();
+                }
+            }
+        }
+        
+        // 初始化协作动画系统
+        let excelAnimator;
+        let wordAnimator;
+        let claudeAnimator;
+        
         // 初始化：隐藏对话历史区域
         chatMessages.classList.add('empty');
 
@@ -1547,11 +3544,19 @@
             claudeContent.innerHTML = '';
             claudeContent.appendChild(iframe);
             
-            // 写入HTML内容到iframe
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDoc.open();
-            iframeDoc.write(htmlContent);
-            iframeDoc.close();
+            // 设置iframe的srcdoc属性以便动画系统访问
+            iframe.srcdoc = htmlContent;
+            
+            // 如果Claude动画系统激活，启动渐进式渲染
+            if (claudeAnimator && claudeAnimator.isActive) {
+                claudeAnimator.startProgressiveRendering(htmlContent);
+            } else {
+                // 正常显示完整内容
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(htmlContent);
+                iframeDoc.close();
+            }
         }
 
         function hideClaudeOutput() {
@@ -1647,6 +3652,32 @@
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
             document.addEventListener('keydown', handleKeyDown);
+            
+            // 修复初始滚动问题：移除max-height限制，设置明确的高度
+            function fixInitialScrolling() {
+                [excelContainer, wordContainer].forEach(container => {
+                    if (container) {
+                        // 获取当前的计算高度
+                        const rect = container.getBoundingClientRect();
+                        const computedStyle = window.getComputedStyle(container);
+                        const maxHeight = computedStyle.maxHeight;
+                        
+                        // 如果有max-height限制，将其转换为明确的height值
+                        if (maxHeight !== 'none') {
+                            container.style.maxHeight = 'none';
+                            container.style.height = rect.height + 'px';
+                        }
+                    }
+                });
+            }
+            
+            // 在下一帧执行修复，确保CSS已经应用
+            requestAnimationFrame(fixInitialScrolling);
+            
+            // 初始化协作动画系统
+            excelAnimator = new ExcelCollaborationAnimator();
+            wordAnimator = new WordCollaborationAnimator();
+            claudeAnimator = new ClaudeAIAnimator();
         });
 
         function handleCheckboxChange(container, isChecked) {
@@ -1903,5 +3934,13 @@
             resizeDirection = null;
         }
     </script>
+    
+    <!-- 全局动画控制开关 -->
+    <div class="global-animation-control">
+        <i class="fas fa-play icon"></i>
+        <div class="global-animation-toggle active" id="globalAnimationToggle">
+            <div class="slider"></div>
+        </div>
+    </div>
 </body>
 </html>

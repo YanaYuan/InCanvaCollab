@@ -1027,7 +1027,10 @@
         
         // 存储对话历史
         let conversationHistory = [];
-        const API_BASE_URL = 'http://localhost:5000';
+        // 环境自适应的API基础URL
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000' 
+            : window.location.origin;
 
         // 初始化：隐藏对话历史区域
         chatMessages.classList.add('empty');
